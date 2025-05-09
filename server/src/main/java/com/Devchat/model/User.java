@@ -1,15 +1,32 @@
-package com.example.Devchat.model;
+package com.Devchat.model;
+
+import java.time.LocalDateTime;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity //mapping the user class to a database table
 @Table(name = "app-users")//sets the actual name of the table 
+@Data
+
 public class User {
     @Id//primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY)//autogenerates the id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//autogenerates the id   
     private long id;
 
+    @Column(nullable = false)//maps the username field to a column in the table
     private String username;
+
+    @Column(nullable = false, unique = true)//maps the password field to a column in the table
     private String email;
+
+    @Column(nullable = false)
+    private String password;//hashed password
+
+    @Column(nullable = false, name = "created_at")//maps the createdAt field to a column in the table
+    private LocalDateTime createdAt = LocalDateTime.now();//date and time of user creation
+
+    @Column(name = "updated_at")//maps the updatedAt field to a column in the table
+    private LocalDateTime updatedAt = LocalDateTime.now();//date and time of user update
     
     //getter and setter methods
 }
