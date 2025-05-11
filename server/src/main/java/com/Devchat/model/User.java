@@ -16,8 +16,14 @@ public class User {
     @Column(nullable = false)//maps the username field to a column in the table
     private String username;
 
+    @Column(nullable  = false)
+    private String fullName;
+
     @Column(nullable = false, unique = true)//maps the password field to a column in the table
     private String email;
+    
+    @Column(nullable = false)//maps the profilePicture field to a column in the table
+    private String profilePicture;//url to the profile picture  
 
     @Column(nullable = false)
     private String password;//hashed password
@@ -28,5 +34,5 @@ public class User {
     @Column(name = "updated_at")//maps the updatedAt field to a column in the table
     private LocalDateTime updatedAt = LocalDateTime.now();//date and time of user update
     
-    //getter and setter methods
+
 }
