@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-
 public interface UserRepository extends JpaRepository<User, Long>  //extends the JpaRepository interface to provide CRUD operations
 {
     //findbyEmail and findbyUsername are custom query methods
@@ -20,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long>  //extends the
 
    
     //used for authentication and profile lookups
-    Optional<User> findbyEmail(String email);
-    Optional<User> findbyUsername(String username);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
     boolean existsByEmail(String email); //helps validate uniqueness during registration
 }

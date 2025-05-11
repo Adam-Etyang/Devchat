@@ -7,9 +7,9 @@ import com.Devchat.model.*;
 
 
 @Entity
-@Data
-@Table(name = "project_members")
 
+@Table(name = "project_members")
+@Data
 public class Projectmember {
 
     @Id

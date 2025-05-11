@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+
 @Service
 public class Userservice {
     private final UserRepository userRepository;
@@ -18,7 +19,7 @@ public class Userservice {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    
+
     // Method to register a new user
     public User registerUser(String email, String username, String password, String fullname ){
         // Check if the user already exists
@@ -42,10 +43,13 @@ public class Userservice {
     }
 
     // Method to update user details
-    public User updateUser(Long id, String fullName, String profilePicture){
+    public User updateUser(Long id, String fullName, String profilePicture, String password) {
         User user = getUserById(id);
         user.setFullName(fullName);
         user.setProfilePicture(profilePicture);
+        user.setPassword(passwordEncoder.encode(password)); // Hash the new password
+
+        
         return userRepository.save(user);
 
     }
@@ -54,8 +58,5 @@ public class Userservice {
     public void deleteUser(Long Id){
         userRepository.deleteById(Id);
     }
-
-
-
 
 }
