@@ -1,6 +1,6 @@
 //part of the data access layer
 // This is the repository interface for the User entity
-//it provides data access methods to interacte with the users table in the database
+//it provides data access methods to interact with the users table in the database
 package com.Devchat.repository;
 
 import com.Devchat.model.User;
