@@ -1,34 +1,38 @@
 package com.Devchat.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import com.Devchat.model.User;
 
 @Entity
 @Table(name = "projects")
 @Data
-
 public class Project {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-@Column(nullable = false)
-private String name;
+  // project name
+  @Column(nullable = false)
+  private String name;
 
-@Column(nullable = false)
-private String description;
+  // description
 
-@ManyToOne
-@JoinColumn(name = "owner_id", nullable = false)
-private User owner;
+  private String description;
+  // creator
+  @Column(name = "creator_id", nullable = false)
+  private User creator;
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime created_at = LocalDateTime.now();
+  // members List/array
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ProjectMember> members = new ArrayList<>();
+  // issues related to the project
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Issue> issues = new ArrayList<>();
 
-@Column(nullable = false, name = "created_at")
-private LocalDateTime createdAt = LocalDateTime.now();
 
-@Column(name = "updated_at")
-private LocalDateTime updatedAt = LocalDateTime.now();
-    
 }
