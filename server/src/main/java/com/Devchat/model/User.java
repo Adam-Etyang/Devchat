@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity //mapping the user class to a database table
-@Table(name = "app-users")//sets the actual name of the table 
+@Table(name = "app_users")//sets the actual name of the table 
 
 @Data
 @Getter
