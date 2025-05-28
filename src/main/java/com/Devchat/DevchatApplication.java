@@ -1,13 +1,11 @@
-package com.Devchat.demo;
+package com.Devchat;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication {
-
+public class DevchatApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(DevchatApplication.class, args);
 	}
-
 }
