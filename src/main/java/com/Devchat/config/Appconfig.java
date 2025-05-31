@@ -1,4 +1,4 @@
-package com.Devchat.config;
+/*package com.Devchat.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
@@ -10,4 +10,4 @@ public class Appconfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
+}*/
