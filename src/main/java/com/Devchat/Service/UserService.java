@@ -40,18 +40,35 @@ public class UserService {
     }
 
     public User loginUser(LoginDTO loginDto) {
-        String login = loginDto.getEmailOrusername().trim();
+        String login = loginDto.getEmailOrUsername().trim();
+
+        System.out.println("Attempting to log in user: " + login);
 
         Optional<User> userOpt = userRepository.findByemail(login);
-
+        System.out.println("User found by email: " + userOpt.isPresent());
+        
         if (userOpt.isEmpty()) {
             userOpt = userRepository.findByusername(login);
+            System.out.println("User found by username: " + userOpt.isPresent());
         }
+                if (userOpt.isEmpty()) {
+            System.out.println("No user found with email/username: " + login);
+            throw new IllegalArgumentException("Invalid email/username or password");
+        }
+                User user = userOpt.get();
+        System.out.println("Found user: " + user.getUsername() + " with email: " + user.getEmail());
+        
+        // Debug password comparison
+        String rawPassword = loginDto.getPassword();
+        String hashedPassword = user.getPassword();
+        boolean passwordMatches = passwordEncoder.matches(rawPassword, hashedPassword);
+        //system info for login
+        System.out.println("Raw password: " + rawPassword);
+        System.out.println("Stored hash: " + hashedPassword);
+        System.out.println("Password matches: " + passwordMatches);
 
-        User user = userOpt.orElseThrow(() -> new IllegalArgumentException("Invalid email/username or password"));
-
-        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            System.out.println("Login failed for user: " + loginDto.getEmailOrusername());
+        if (!passwordMatches) {
+            System.out.println("Login failed for user: " + loginDto.getEmailOrUsername());
             throw new IllegalArgumentException("Invalid email/username or password");
         }
 
