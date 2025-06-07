@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 
-@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
