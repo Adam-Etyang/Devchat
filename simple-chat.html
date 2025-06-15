@@ -1,0 +1,749 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Chat Interface</title>
+  <style>
+    :root {
+      --background: rgb(9, 9, 11);
+      --foreground: rgb(250, 250, 250);
+      --card: rgb(9, 9, 11);
+      --card-foreground: rgb(250, 250, 250);
+      --primary: rgb(149, 97, 255);
+      --primary-foreground: rgb(255, 255, 255);
+      --secondary: rgb(39, 39, 45);
+      --secondary-foreground: rgb(250, 250, 250);
+      --muted: rgb(39, 39, 45);
+      --muted-foreground: rgb(161, 161, 170);
+      --accent: rgb(39, 39, 45); 
+      --accent-foreground: rgb(250, 250, 250);
+      --destructive: rgb(127, 29, 29);
+      --destructive-foreground: rgb(250, 250, 250);
+      --border: rgb(39, 39, 45);
+      --input: rgb(39, 39, 45);
+      --sidebar-background: rgb(23, 23, 28);
+      --sidebar-foreground: rgb(242, 242, 247);
+      --sidebar-accent: rgb(45, 45, 53);
+      --code-bg: rgb(30, 30, 46);
+      --code-fg: rgb(205, 214, 244);
+      --radius: 0.5rem;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-color: var(--border);
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.5;
+    }
+
+    header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background-color: var(--background);
+      backdrop-filter: blur(8px);
+      z-index: 40;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: var(--foreground);
+    }
+    
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--primary);
+    }
+    
+    nav {
+      display: flex;
+      flex: 1;
+      justify-content: space-between;
+      margin-left: 1rem;
+    }
+    
+    .nav-items {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .nav-link {
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--foreground);
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    
+    .nav-link:hover {
+      background-color: var(--secondary);
+    }
+    
+    .nav-link.active {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+    
+    .btn {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+    
+    .btn:hover {
+      background-color: color-mix(in srgb, var(--primary) 90%, black);
+    }
+    
+    .btn-icon {
+      padding: 0.5rem;
+      background-color: transparent;
+      border: none;
+      color: var(--foreground);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+    }
+    
+    .btn-icon:hover {
+      background-color: var(--secondary);
+    }
+    
+    .layout {
+      display: flex;
+      height: calc(100vh - 56px);
+    }
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      transition: padding-right 0.3s ease;
+    }
+    
+    .chat-container.sidebar-open {
+      padding-right: 320px;
+    }
+    
+    .messages-container {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    
+    .messages {
+      max-width: 64rem;
+      margin: 0 auto;
+    }
+    
+    .message {
+      display: flex;
+      margin-bottom: 1.5rem;
+    }
+    
+    .message-content {
+      max-width: 80%;
+      padding: 0.75rem;
+      border-radius: var(--radius);
+      background-color: var(--secondary);
+    }
+    
+    .message.current-user {
+      flex-direction: row-reverse;
+    }
+    
+    .message.current-user .message-content {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+    
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+    }
+    
+    .message-sender {
+      font-weight: 500;
+    }
+    
+    .message-time {
+      color: var(--muted-foreground);
+      font-size: 0.75rem;
+    }
+    
+    .code-block {
+      margin-top: 0.5rem;
+      font-family: monospace;
+      background-color: var(--code-bg);
+      color: var(--code-fg);
+      padding: 1rem;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      position: relative;
+    }
+    
+    .code-block-header {
+      padding: 0.5rem 1rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .code-block-language {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+    }
+    
+    .code-block-copy {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.25rem;
+      border: none;
+      background-color: rgba(0, 0, 0, 0.3);
+      color: var(--muted-foreground);
+      border-radius: var(--radius);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .code-block:hover .code-block-copy {
+      opacity: 1;
+    }
+    
+    .input-container {
+      border-top: 1px solid var(--border);
+      padding: 1rem;
+    }
+    
+    .input-wrapper {
+      max-width: 64rem;
+      margin: 0 auto;
+    }
+    
+    .chat-input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: var(--radius);
+      background-color: var(--secondary);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      resize: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    
+    .chat-input-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+    
+    .chat-input-tools {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      right: 0;
+      bottom: 0;
+      width: 320px;
+      background-color: var(--sidebar-background);
+      border-left: 1px solid var(--border);
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+      z-index: 30;
+    }
+    
+    .sidebar.hidden {
+      transform: translateX(100%);
+    }
+    
+    .sidebar-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      background-color: var(--secondary);
+      border: 1px solid var(--border);
+      border-right: none;
+      color: var(--foreground);
+      width: 24px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      z-index: 25;
+    }
+    
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .sidebar-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .sidebar-title-icon {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .sidebar-content {
+      height: calc(100% - 52px);
+      overflow-y: auto;
+    }
+    
+    .code-snippets {
+      padding: 0.5rem;
+    }
+    
+    .snippet-item {
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .snippet-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      background: none;
+      border: none;
+      color: var(--foreground);
+      text-align: left;
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: background-color 0.2s;
+    }
+    
+    .snippet-button:hover {
+      background-color: var(--sidebar-accent);
+    }
+    
+    .snippet-icon {
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      color: var(--primary);
+    }
+    
+    .snippet-content {
+      overflow: hidden;
+      flex: 1;
+    }
+    
+    .snippet-header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+    
+    .snippet-sender {
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .snippet-time {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      flex-shrink: 0;
+    }
+    
+    .snippet-preview {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 0.25rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .snippet-detail {
+      padding: 0.75rem;
+    }
+    
+    .snippet-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .snippet-detail-back {
+      background: none;
+      border: none;
+      color: var(--foreground);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius);
+    }
+    
+    .snippet-detail-back:hover {
+      background-color: var(--sidebar-accent);
+    }
+    
+    .snippet-detail-timestamp {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+      margin-bottom: 0.5rem;
+    }
+    
+    .mobile-menu {
+      display: none;
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .chat-container.sidebar-open {
+        padding-right: 0;
+      }
+      
+      .sidebar {
+        width: 280px;
+      }
+      
+      .mobile-menu {
+        display: block;
+      }
+      
+      .desktop-menu {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header/Navigation -->
+  <header>
+    <a href="#" class="logo">
+      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+      <span>CodeCollab</span>
+    </a>
+    
+    <nav>
+      <div class="nav-items desktop-menu">
+        <a href="#" class="nav-link active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Chat
+        </a>
+      </div>
+      <div class="nav-items">
+        <a href="#" class="nav-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Settings
+        </a>
+        <button class="btn">Sign In</button>
+        
+        <!-- Mobile menu button -->
+        <button class="btn-icon mobile-menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+  
+  <div class="layout">
+    <!-- Main Chat Area -->
+    <div class="chat-container sidebar-open">
+      <div class="messages-container">
+        <div class="messages">
+          <!-- Message 1 -->
+          <div class="message">
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-sender">Jane Cooper</span>
+                <span class="message-time">10:30 AM</span>
+              </div>
+              <div class="message-text">
+                Hey team! I'm working on the authentication module and ran into an issue.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message 2 -->
+          <div class="message">
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-sender">Alex Johnson</span>
+                <span class="message-time">10:32 AM</span>
+              </div>
+              <div class="message-text">
+                What's the problem? Maybe I can help.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message 3 -->
+          <div class="message">
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-sender">Jane Cooper</span>
+                <span class="message-time">10:34 AM</span>
+              </div>
+              <div class="message-text">
+                I'm getting this error when trying to use JWT for token verification:
+              </div>
+              <div class="code-block">
+                <button class="code-block-copy">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+                <pre>TypeError: authClient.verifyIdToken is not a function
+  at verifyToken (/app/middleware/auth.js:12:23)
+  at processTicksAndRejections (node:internal/process/task_queues:95:5)</pre>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message 4 -->
+          <div class="message">
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-sender">Sam Wilson</span>
+                <span class="message-time">10:36 AM</span>
+              </div>
+              <div class="message-text">
+                I had a similar issue. Check your import statement. You might be importing the wrong module or missing something.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message 5 -->
+          <div class="message">
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-sender">Sam Wilson</span>
+                <span class="message-time">10:37 AM</span>
+              </div>
+              <div class="message-text">
+                Try changing your import like this:
+              </div>
+              <div class="code-block">
+                <button class="code-block-copy">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+                <pre>// Before
+import { auth } from 'firebase-admin';
+
+// After
+import * as admin from 'firebase-admin';
+const auth = admin.auth();</pre>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message 6 - Your Message -->
+          <div class="message current-user">
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-sender">You</span>
+                <span class="message-time">10:40 AM</span>
+              </div>
+              <div class="message-text">
+                Thanks! That fixed the issue!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Chat Input Area -->
+      <div class="input-container">
+        <div class="input-wrapper">
+          <textarea class="chat-input" placeholder="Type your message here..." rows="3"></textarea>
+          <div class="chat-input-actions">
+            <div class="chat-input-tools">
+              <button class="btn-icon" title="Format as code">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+              </button>
+              <button class="btn-icon" title="Upload file">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </button>
+            </div>
+            <button class="btn">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sidebar Toggle Button (shows when sidebar is hidden) -->
+    <div class="sidebar-toggle hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </div>
+    
+    <!-- Code Snippets Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <svg class="sidebar-title-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <span>Code Snippets</span>
+        </div>
+        <div>
+          <button class="btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <button class="btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="sidebar-content">
+        <div class="code-snippets">
+          <!-- List of code snippets -->
+          <div class="snippet-item">
+            <button class="snippet-button">
+              <svg class="snippet-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <div class="snippet-content">
+                <div class="snippet-header">
+                  <span class="snippet-sender">Jane Cooper</span>
+                  <span class="snippet-time">10:34 AM</span>
+                </div>
+                <div class="snippet-preview">
+                  TypeError: authClient.verifyIdToken is not a function...
+                </div>
+              </div>
+            </button>
+          </div>
+          
+          <div class="snippet-item">
+            <button class="snippet-button">
+              <svg class="snippet-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <div class="snippet-content">
+                <div class="snippet-header">
+                  <span class="snippet-sender">Sam Wilson</span>
+                  <span class="snippet-time">10:37 AM</span>
+                </div>
+                <div class="snippet-preview">
+                  // Before import { auth } from 'firebase-admin';...
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple JavaScript to toggle the sidebar
+    // You can remove this if you want a pure HTML/CSS version
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.querySelector('.sidebar');
+      const chatContainer = document.querySelector('.chat-container');
+      const sidebarToggle = document.querySelector('.sidebar-toggle');
+      const closeBtn = document.querySelector('.sidebar-header .btn-icon:last-child');
+      
+      closeBtn.addEventListener('click', function() {
+        sidebar.classList.add('hidden');
+        chatContainer.classList.remove('sidebar-open');
+        sidebarToggle.classList.remove('hidden');
+      });
+      
+      sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.remove('hidden');
+        chatContainer.classList.add('sidebar-open');
+        sidebarToggle.classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
