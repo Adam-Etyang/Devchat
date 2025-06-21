@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="../css/signup_styles.css">
+</head>
+<body>
+    <div class="signup-container">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="step-indicator" id="stepIndicator">Step 1 of 4</div>
+        <form id="signupForm">
+            <div class="step-content">
+                <div class="step active" data-step="1">
+                    <h2>Welcome!</h2>
+                    <p>Let's create your account. We'll guide you through each step to make this as easy as possible.</p>
+                    <div class="form-group">
+                        <label for="orgName">Enter your Name?</label>
+                        <input type="text" id="orgName" placeholder="Enter Your name">
+                        <div class="error-message" id="orgNameError"></div>
+                    </div>
+                </div>
+                <div class="step" data-step="2">
+                    <h2>Contact Information</h2>
+                    <p>We'll need your email address to keep in touch and secure your account.</p>
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                </div>
+                <div class="step" data-step="3">
+                    <h2>Secure Your Account</h2>
+                    <p>Choose a strong password to keep your account safe.</p>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Create a password">
+                        <div class="password-strength" id="passwordStrength" style="display: none;">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <div class="strength-text" id="strengthText"></div>
+                        </div>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+                </div>
+                <div class="step" data-step="4">
+                    <h2>Almost Done!</h2>
+                    <p>Let's review your information before creating your account.</p>
+                    <div class="form-group">
+                        <p><strong>Organization:</strong> <span id="reviewOrgName"></span></p>
+                        <p><strong>Email:</strong> <span id="reviewEmail"></span></p>
+                        <p>By creating an account, you agree to our Terms of Service and Privacy Policy.</p>
+                    </div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="success-animation">
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                        <h2>Account Created Successfully!</h2>
+                        <p>Welcome to our platform, <span id="successOrgName"></span>! You can now start exploring.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">Previous</button>
+                <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+            </div>
+        </form>
+    </div>
+    <script src="../js/signup_script.js"></script>
+</body>
+</html>
