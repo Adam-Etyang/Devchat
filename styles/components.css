@@ -8,7 +8,6 @@
     background-color: var(--background-color);
     border-bottom: 1px solid var(--border-color);
     z-index: 100;
-    box-shadow: var(--shadow-sm);
 }
 
 .nav-container {
@@ -277,13 +276,11 @@
 }
 
 .auth-card {
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
     border-radius: var(--radius-lg);
     padding: 2rem;
     width: 100%;
     max-width: 400px;
-    box-shadow: var(--shadow-lg);
 }
 
 .auth-card h2 {
@@ -324,8 +321,7 @@
 }
 
 .settings-section {
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     margin-bottom: 2rem;
@@ -399,7 +395,6 @@
         gap: 1rem;
         transform: translateY(-100%);
         transition: transform 0.3s ease;
-        box-shadow: var(--shadow-md);
     }
 
     .nav-menu.active {
