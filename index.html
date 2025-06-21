@@ -1,27 +1,240 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevChat - Code Together, Build Better</title>
-    <meta name="description" content="A collaborative platform for developers to share, discuss, and iterate on code in real time" />
-    <meta name="author" content="DevChat" />
-
-    <meta property="og:title" content="DevChat - Code Together, Build Better" />
-    <meta property="og:description" content="A collaborative platform for developers to share, discuss, and iterate on code in real time" />
-    <meta property="og:type" content="website" />
-    
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="DevChat - Code Together, Build Better" />
-    
+    <title>DevChat - AI Programming Assistant</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/pages.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   </head>
 
   <body>
-    <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <i class="fas fa-code"></i>
+          <span>DevChat</span>
+        </div>
+        <div class="nav-menu" id="nav-menu">
+          <a href="#" class="nav-link" data-page="index">Home</a>
+          <a href="#" class="nav-link" data-page="chat">Chat</a>
+          <a href="#" class="nav-link" data-page="settings">Settings</a>
+          <div class="nav-auth" id="nav-auth">
+            <a href="#" class="nav-link" data-page="signin">Sign In</a>
+            <a href="#" class="btn btn-primary" data-page="signup">Sign Up</a>
+          </div>
+          <div class="nav-user" id="nav-user" style="display: none;">
+            <div class="user-profile">
+              <img src="https://via.placeholder.com/32" alt="User" class="user-avatar">
+              <span class="user-name">User</span>
+            </div>
+            <button class="btn btn-secondary" id="logout-btn">Logout</button>
+          </div>
+        </div>
+        <div class="nav-toggle" id="nav-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Index Page -->
+      <div id="index-page" class="page active">
+        <div class="hero-section">
+          <div class="hero-content">
+            <h1 class="hero-title">Your AI Programming Assistant</h1>
+            <p class="hero-subtitle">Get instant help with coding, debugging, and learning new technologies</p>
+            <div class="hero-buttons">
+              <button class="btn btn-primary btn-large" data-page="chat">Start Chatting</button>
+              <button class="btn btn-secondary btn-large" data-page="signup">Get Started</button>
+            </div>
+          </div>
+          <div class="hero-image">
+            <i class="fas fa-robot"></i>
+          </div>
+        </div>
+        
+        <div class="features-section">
+          <h2>Why Choose DevChat?</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <i class="fas fa-bolt"></i>
+              <h3>Lightning Fast</h3>
+              <p>Get instant responses to your programming questions</p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-code"></i>
+              <h3>Code Generation</h3>
+              <p>Generate code snippets and complete functions</p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-bug"></i>
+              <h3>Debug Help</h3>
+              <p>Get help debugging and fixing your code</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Page -->
+      <div id="chat-page" class="page">
+        <div class="chat-container">
+          <div class="chat-sidebar" id="chat-sidebar">
+            <div class="sidebar-header">
+              <h3>Chat History</h3>
+              <button class="btn btn-secondary btn-small" id="new-chat-btn">
+                <i class="fas fa-plus"></i> New Chat
+              </button>
+            </div>
+            <div class="chat-history" id="chat-history">
+              <!-- Chat history items will be added here -->
+            </div>
+          </div>
+          <div class="chat-main">
+            <div class="chat-messages" id="chat-messages">
+              <div class="welcome-message">
+                <h2>Welcome to DevChat!</h2>
+                <p>Ask me anything about programming, and I'll help you out.</p>
+              </div>
+            </div>
+            <div class="chat-input-container">
+              <div class="chat-input-wrapper">
+                <textarea 
+                  id="chat-input" 
+                  class="chat-input" 
+                  placeholder="Type your message here..."
+                  rows="1"
+                ></textarea>
+                <button class="send-button" id="send-button">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sign In Page -->
+      <div id="signin-page" class="page">
+        <div class="auth-container">
+          <div class="auth-card">
+            <h2>Sign In</h2>
+            <form id="signin-form" class="auth-form">
+              <div class="form-group">
+                <label for="signin-email">Email</label>
+                <input type="email" id="signin-email" required>
+              </div>
+              <div class="form-group">
+                <label for="signin-password">Password</label>
+                <input type="password" id="signin-password" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+            </form>
+            <p class="auth-link">
+              Don't have an account? <a href="#" data-page="signup">Sign Up</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sign Up Page -->
+      <div id="signup-page" class="page">
+        <div class="auth-container">
+          <div class="auth-card">
+            <h2>Create Account</h2>
+            <form id="signup-form" class="auth-form">
+              <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-confirm-password">Confirm Password</label>
+                <input type="password" id="signup-confirm-password" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            </form>
+            <p class="auth-link">
+              Already have an account? <a href="#" data-page="signin">Sign In</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Page -->
+      <div id="settings-page" class="page">
+        <div class="settings-container">
+          <h2>Settings</h2>
+          <div class="settings-section">
+            <h3>Profile</h3>
+            <form id="profile-form" class="settings-form">
+              <div class="form-group">
+                <label for="profile-name">Full Name</label>
+                <input type="text" id="profile-name">
+              </div>
+              <div class="form-group">
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email">
+              </div>
+              <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+          </div>
+          
+          <div class="settings-section">
+            <h3>Preferences</h3>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dark-mode">
+                <span>Dark Mode</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="notifications">
+                <span>Enable Notifications</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 404 Page -->
+      <div id="notfound-page" class="page">
+        <div class="notfound-container">
+          <h1>404</h1>
+          <h2>Page Not Found</h2>
+          <p>The page you're looking for doesn't exist.</p>
+          <button class="btn btn-primary" data-page="index">Go Home</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 DevChat. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/navigation.js"></script>
   </body>
 </html>
