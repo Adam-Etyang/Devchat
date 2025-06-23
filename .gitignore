@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
+=======
+
+
+#ignore files
+Devchat/src/main/resources/application.properties
+
+>>>>>>> feature/user-functionality
