@@ -1,6 +1,6 @@
 package com.Devchat.projectmodule.mapper;
 
-import com.Devchat.projectmodule.Project;
+import com.Devchat.projectmodule.Entity.Project;
 import com.Devchat.projectmodule.dto.ProjectDTO;
 import org.springframework.stereotype.Component;
 

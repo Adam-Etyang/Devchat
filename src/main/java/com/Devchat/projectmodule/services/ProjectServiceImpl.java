@@ -1,10 +1,10 @@
-package com.devchat.projectmodule.services;
+package com.Devchat.projectmodule.services;
 
-import com.devchat.projectmodule.exceptions.ProjectNotFoundException;
-import com.devchat.projectmodule.Project;
-import com.devchat.projectmodule.dto.ProjectDTO; // NEW: Import ProjectDTO
-import com.devchat.projectmodule.mapper.ProjectMapper; // NEW: Import ProjectMapper
-import com.devchat.projectmodule.repositories.ProjectRepository;
+import com.Devchat.projectmodule.exceptions.ProjectNotFoundException;
+import com.Devchat.projectmodule.Entity.Project;
+import com.Devchat.projectmodule.dto.ProjectDTO; // NEW: Import ProjectDTO
+import com.Devchat.projectmodule.mapper.ProjectMapper; // NEW: Import ProjectMapper
+import com.Devchat.projectmodule.repositories.ProjectRepository;
 
 //Spring annotations for dependency injection and transactions
 import org.springframework.beans.factory.annotation.Autowired;

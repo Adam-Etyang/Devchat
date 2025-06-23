@@ -1,6 +1,6 @@
 package com.Devchat.projectmodule.repositories;
 
-import com.Devchat.projectmodule.Project;
+import com.Devchat.projectmodule.Entity.Project;
 // This import is needed because we're working with Project entities
 // It's our main entity class that this repository will manage
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +21,7 @@ import java.util.List;
 // - Order might be important
 // - Duplicates are unlikely in this context
 // - It's more commonly used in JPA repositories
-import com.Devchat.projectmodule.Role;
+import com.Devchat.projectmodule.Entity.Role;
 //For role-based queries
 
 

@@ -1,6 +1,6 @@
 package com.Devchat.projectmodule.mapper;
 
-import com.Devchat.projectmodule.Role;
+import com.Devchat.projectmodule.Entity.Role;
 import com.Devchat.projectmodule.dto.RoleDTO;
 import org.springframework.stereotype.Component;
 

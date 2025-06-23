@@ -8,7 +8,7 @@ public class RoleNotFoundException extends RuntimeException {
     /**
      * Constructor with role ID.
      *
-     * @param id The ID of the role that was not found
+     * @
      */
     public RoleNotFoundException(Long id) {
         super("Role with ID " + id + " not found");

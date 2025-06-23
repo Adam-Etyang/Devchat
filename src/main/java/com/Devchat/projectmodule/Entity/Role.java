@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule;
+package com.Devchat.projectmodule.Entity;
 
 import jakarta.persistence.*;
 import java.util.List;
