@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule.Entity;
+package com.Devchat.entity;
 import com.Devchat.entity.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

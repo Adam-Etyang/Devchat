@@ -1,11 +1,10 @@
-package com.Devchat.projectmodule.services;
+package com.Devchat.Service;
 
-import com.Devchat.projectmodule.Entity.Role;
-import com.Devchat.projectmodule.dto.RoleDTO;
-import com.Devchat.projectmodule.exceptions.RoleNotFoundException;
-import com.Devchat.projectmodule.mapper.RoleMapper;
-import com.Devchat.projectmodule.repositories.RoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.Devchat.entity.Role;
+import com.Devchat.DTO.RoleDTO;
+import com.Devchat.exceptions.RoleNotFoundException;
+import com.Devchat.mapper.RoleMapper;
+import com.Devchat.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,6 @@ public class RoleService {
      * Constructor for dependency injection.
 
      */
-    @Autowired
     public RoleService(RoleRepository roleRepository, RoleMapper roleMapper) {
         this.roleRepository = roleRepository;
         this.roleMapper = roleMapper;

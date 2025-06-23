@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule.dto;
+package com.Devchat.DTO;
 
 // Import validation annotations
 //Validation annotations are used to ensure data is valid
@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-
 
 //for timestamp handling
 import java.time.LocalDateTime;

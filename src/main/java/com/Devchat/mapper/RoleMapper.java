@@ -1,7 +1,7 @@
-package com.Devchat.projectmodule.mapper;
+package com.Devchat.mapper;
 
-import com.Devchat.projectmodule.Entity.Role;
-import com.Devchat.projectmodule.dto.RoleDTO;
+import com.Devchat.entity.Role;
+import com.Devchat.DTO.RoleDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

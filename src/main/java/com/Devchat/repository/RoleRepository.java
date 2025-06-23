@@ -1,6 +1,6 @@
-package com.Devchat.projectmodule.repositories;
+package com.Devchat.repository;
 
-import com.Devchat.projectmodule.Entity.Role;
+import com.Devchat.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

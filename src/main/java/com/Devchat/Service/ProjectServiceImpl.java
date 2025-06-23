@@ -1,13 +1,12 @@
-package com.Devchat.projectmodule.services;
+package com.Devchat.Service;
 
-import com.Devchat.projectmodule.exceptions.ProjectNotFoundException;
-import com.Devchat.projectmodule.Entity.Project;
-import com.Devchat.projectmodule.dto.ProjectDTO; // NEW: Import ProjectDTO
-import com.Devchat.projectmodule.mapper.ProjectMapper; // NEW: Import ProjectMapper
-import com.Devchat.projectmodule.repositories.ProjectRepository;
+import com.Devchat.exceptions.ProjectNotFoundException;
+import com.Devchat.entity.*;
+import com.Devchat.DTO.ProjectDTO; // NEW: Import ProjectDTO
+import com.Devchat.mapper.ProjectMapper; // NEW: Import ProjectMapper
+import com.Devchat.repository.*;
 
 //Spring annotations for dependency injection and transactions
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
 
     // Constructor-based dependency injection
-    @Autowired// tells Spring to provide the repository instance
     public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;

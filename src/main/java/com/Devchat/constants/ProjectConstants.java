@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule.constants;
+package com.Devchat.constants;
 
 /**
  * Constants class for project-related values and configurations.

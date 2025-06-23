@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule.exceptions;
+package com.Devchat.exceptions;
 
 /**
  * Exception thrown when a requested role cannot be found.

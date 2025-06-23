@@ -1,6 +1,6 @@
-package com.Devchat.projectmodule.services;
+package com.Devchat.Service;
 
-import com.Devchat.projectmodule.dto.ProjectDTO; // NEW: Import ProjectDTO
+import com.Devchat.DTO.*; // NEW: Import ProjectDTO
 import java.util.List;
 
 public interface ProjectService {

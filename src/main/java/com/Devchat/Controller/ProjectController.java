@@ -1,14 +1,13 @@
-package com.Devchat.projectmodule.controller;
+package com.Devchat.Controller;
 
 //Our data transfer object for projects
-import com.Devchat.projectmodule.dto.ProjectDTO;
+import com.Devchat.DTO.*;
 //The service interface we'll use for business logic
-import com.Devchat.projectmodule.services.ProjectService;
+import com.Devchat.Service.*;
 //For validating incoming data
 import jakarta.validation.Valid;
 
 //Spring annotations for REST controller functionality
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 //For building HTTP responses
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ public class ProjectController {
     private final ProjectService projectService;//
 
     //Uses constructor injection (best practice)
-    @Autowired// tells Spring to provide the service implementation
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }

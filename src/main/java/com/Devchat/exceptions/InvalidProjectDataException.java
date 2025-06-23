@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule.exceptions;
+package com.Devchat.exceptions;
 
 /**
  * Custom exception class for handling cases where project data is invalid or doesn't meet requirements.

@@ -1,9 +1,8 @@
-package com.Devchat.projectmodule.controller;
+package com.Devchat.Controller;
 
-import com.Devchat.projectmodule.dto.RoleDTO;
-import com.Devchat.projectmodule.services.RoleService;
+import com.Devchat.DTO.RoleDTO;
+import com.Devchat.Service.RoleService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,6 @@ public class RoleController {
      *
      * @param roleService Service for role business logic
      */
-    @Autowired
     public RoleController(RoleService roleService) {
         this.roleService = roleService;
     }
