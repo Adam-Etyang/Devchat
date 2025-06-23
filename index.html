@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevChat - AI Programming Assistant</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/pages.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-code"></i>
+                <span>DevChat</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#" class="nav-link" data-page="index">Home</a>
+                <a href="#" class="nav-link" data-page="chat">Chat</a>
+                <a href="#" class="nav-link" data-page="settings">Settings</a>
+                <div class="nav-auth" id="nav-auth">
+                    <a href="#" class="nav-link" data-page="signin">Sign In</a>
+                    <a href="#" class="btn btn-primary" data-page="signup">Sign Up</a>
+                </div>
+                <div class="nav-user" id="nav-user" style="display: none;">
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/32" alt="User" class="user-avatar">
+                        <span class="user-name">User</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logout-btn">Logout</button>
+                </div>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Index Page -->
+        <div id="index-page" class="page active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">Code Together, Build Better</h1>
+                    <p class="hero-subtitle">A collaborative platform for developers to share, discuss, and iterate on code in real time</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-large" data-page="chat">Start Collaborating</button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <i class="fas fa-robot"></i>
+                </div>
+            </div>
+            
+            <div class="features-section">
+                <h2>Everything you need to collaborate</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Lightning Fast</h3>
+                        <p>Get instant responses to your programming questions</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-code"></i>
+                        <h3>Code Generation</h3>
+                        <p>Generate code snippets and complete functions</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-bug"></i>
+                        <h3>Debug Help</h3>
+                        <p>Get help debugging and fixing your code</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Page -->
+        <div id="chat-page" class="page">
+            <div class="chat-layout">
+                <!-- Projects Sidebar -->
+                <aside class="projects-sidebar" id="projects-sidebar">
+                    <div class="sidebar-header">
+                        <h4>Projects</h4>
+                        <button class="btn btn-small" id="toggle-projects-sidebar">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar-content">
+                        <button class="btn btn-primary btn-full" id="new-project-btn">
+                            <i class="fas fa-plus"></i> New Project
+                        </button>
+                        <div class="projects-list">
+                            <!-- Projects will be rendered here -->
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Chat Area -->
+                <main class="chat-main">
+                    <div class="chat-header">
+                        <div class="chat-info">
+                            <div class="project-icon-section">
+                                <div class="project-icon" id="project-icon">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <input type="file" id="project-icon-upload" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="project-text">
+                                <h3 id="current-project-name">Select a Project</h3>
+                                <p id="current-project-desc">Choose a project to start collaborating</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages" id="chat-messages-container">
+                        <!-- Messages will be rendered here -->
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <button class="btn btn-secondary" id="attach-file-btn">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="file" id="file-upload" accept=".js,.py,.html,.css,.txt,.json,.xml,.md" style="display: none;">
+                        <textarea id="chat-input" placeholder="Type your message here..."></textarea>
+                        <button id="send-btn" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </main>
+
+                <!-- Code Snippets Sidebar -->
+                <aside class="code-context-sidebar" id="code-sidebar">
+                    <div class="sidebar-header">
+                        <h4>Snippets</h4>
+                        <button class="btn btn-small" id="toggle-code-sidebar">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="code-snippets">
+                        <!-- Code snippets will be dynamically rendered here -->
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Sign In Page -->
+        <div id="signin-page" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2>Sign In</h2>
+                    <form id="signin-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="signin-email">Email</label>
+                            <input type="email" id="signin-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signin-password">Password</label>
+                            <input type="password" id="signin-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                    </form>
+                    <p class="auth-link">
+                        Don't have an account? <a href="#" data-page="signup">Sign Up</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sign Up Page -->
+        <div id="signup-page" class="page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h2>Create Account</h2>
+                    <form id="signup-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm-password">Confirm Password</label>
+                            <input type="password" id="signup-confirm-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                    </form>
+                    <p class="auth-link">
+                        Already have an account? <a href="#" data-page="signin">Sign In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page">
+            <div class="settings-container">
+                <div class="settings-header">
+                    <h2>User Settings</h2>
+                    <p>Manage your account and preferences</p>
+                </div>
+                
+                <div class="settings-content">
+                    <!-- Profile Section -->
+                    <div class="settings-section">
+                        <h3>My Account</h3>
+                        <div class="profile-section">
+                            <div class="profile-avatar-section">
+                                <div class="profile-avatar">
+                                    <img id="profile-avatar-img" src="https://via.placeholder.com/80" alt="Profile Picture">
+                                    <div class="avatar-overlay">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                </div>
+                                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                                <button class="btn btn-secondary" id="change-avatar-btn">Change Avatar</button>
+                            </div>
+                            
+                            <form id="profile-form" class="settings-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="profile-username">Username</label>
+                                        <input type="text" id="profile-username" placeholder="Enter username">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-display-name">Display Name</label>
+                                        <input type="text" id="profile-display-name" placeholder="Enter display name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-email">Email</label>
+                                    <input type="email" id="profile-email" placeholder="Enter email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-bio">Bio</label>
+                                    <textarea id="profile-bio" placeholder="Tell us about yourself..." rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Appearance Section -->
+                    <div class="settings-section">
+                        <h3>Appearance</h3>
+                        <div class="settings-form">
+                            <div class="toggle-group">
+                                <label class="toggle-label">
+                                    <span>Dark Mode</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="dark-mode" checked>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="theme-color">Theme Color</label>
+                                <select id="theme-color">
+                                    <option value="purple">Purple</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="red">Red</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications Section -->
+                    <div class="settings-section">
+                        <h3>Notifications</h3>
+                        <div class="settings-form">
+                            <div class="toggle-group">
+                                <label class="toggle-label">
+                                    <span>Enable Notifications</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="notifications" checked>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <label class="toggle-label">
+                                    <span>Sound Notifications</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="sound-notifications">
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <label class="toggle-label">
+                                    <span>Desktop Notifications</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="desktop-notifications">
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Privacy Section -->
+                    <div class="settings-section">
+                        <h3>Privacy & Security</h3>
+                        <div class="settings-form">
+                            <button class="btn btn-secondary" id="change-email-btn">Change Email</button>
+                            <button class="btn btn-secondary" id="change-password-btn">Change Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 404 Page -->
+        <div id="notfound-page" class="page">
+            <div class="notfound-container">
+                <h1>404</h1>
+                <h2>Page Not Found</h2>
+                <p>The page you're looking for doesn't exist.</p>
+                <button class="btn btn-primary" data-page="index">Go Home</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>DevChat Project 2025</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+  </body>
+</html>
