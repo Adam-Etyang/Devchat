@@ -31,8 +31,6 @@ public class RegisterDTO {
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
     
-    @Size(max = 255, message = "Profile picture URL must be less than 255 characters")
-    private String profilePicture;
     
     private String createdAt;
     private String updatedAt;

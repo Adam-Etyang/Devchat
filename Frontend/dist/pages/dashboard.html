@@ -25,11 +25,14 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
       <div class="font-bold text-2xl text-devpurple tracking-tight">Devchat</div>
       <div class="hidden md:flex gap-8">
+
+        <!--TODO:make these links to the respective pages-->
         <a href="#" class="relative text-gray-300 hover:text-devpurple font-medium transition">Dashboard</a>
-        <a href="#" class="relative text-gray-300 hover:text-devpurple font-medium transition">Projects</a>
-        <a href="#" class="relative text-gray-300 hover:text-devpurple font-medium transition">Issues</a>
-        <a href="#" class="relative text-gray-300 hover:text-devpurple font-medium transition">Messages</a>
+        <a href="../pages/projects.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Projects</a>
+        <a href="../pages/issues.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Issues</a>
+        <a href="../pages/Notifications.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Messages</a>
       </div>
+
       <div class="flex gap-3">
         <a href="#" class="px-4 py-2 border-2 border-white/30 rounded-md text-white font-medium hover:bg-devpurple/10 hover:text-devpurple hover:border-devpurple transition">Login</a>
         <a href="#" class="px-4 py-2 rounded-md bg-devpurple text-black font-semibold hover:bg-devpurplelight transition">Sign Up</a>
@@ -39,30 +42,40 @@
   <!-- Main Layout -->
   <div class="flex pt-24 max-w-7xl mx-auto min-h-screen">
     <!-- Sidebar -->
+     <!--TODO:make these links to the respective pages-->
     <aside class="hidden md:block w-60 px-4">
       <nav class="flex flex-col gap-2">
-        <a href="#" class="block px-4 py-2 rounded-lg text-devpurple bg-devpurple/10 font-semibold">Overview</a>
-        <a href="#" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">My Projects</a>
-        <a href="#" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Assigned Issues</a>
-        <a href="#" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Team Chat</a>
-        <a href="#" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Notifications</a>
-        <a href="#" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Settings</a>
+        <a href="#" class="block px-4 py-2 rounded-lg text-devpurple bg-devpurple/10 font-semibold">Home</a><!--TODO:make this an icon instead of text-->
+        <a href="../pages/projects.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">My Projects</a>
+        <a href="../pages/issues.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Assigned Issues</a>
+        <a href="../pages/chat.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Team Chat</a>
+        <a href="../pages/Notifications.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Notifications</a>
+        <a href="../pages/settings.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Settings</a>
       </nav>
     </aside>
+
+
     <!-- Dashboard Content -->
     <main class="flex-1 px-4 md:px-8 space-y-8">
       <!-- Welcome & Quick Actions -->
       <section class="bg-[#18181b]/95 border border-devpurple/20 rounded-xl shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 class="text-2xl md:text-3xl font-bold mb-1">Welcome back, Developer!</h1>
+          <!--TODO: make it display the username of the user who has logged in -->
+          <h1 class="text-2xl md:text-3xl font-bold mb-1">Welcome back, Username</h1>
           <p class="text-gray-300">Collaborate, manage projects, and chat with your team in one place.</p>
         </div>
+
+        <!--TODO:make these buttons to perform the respective actions-->
         <div class="flex gap-3">
           <a href="#" class="bg-devpurple text-black font-semibold rounded-lg px-5 py-2 hover:bg-devpurplelight transition">New Project</a>
           <a href="#" class="bg-[#18181b] text-devpurple border border-devpurple font-semibold rounded-lg px-5 py-2 hover:bg-devpurple/10 hover:text-devpurplelight transition">Create Issue</a>
         </div>
       </section>
+
+
       <!-- Project Overview -->
+      
+      <!--TODO: make it display the actual projects of the user who has logged in -->
       <section>
         <h2 class="text-devpurple font-bold text-xl mb-4">Your Projects</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -73,11 +86,13 @@
               <span class="text-xs bg-devpurple/20 text-devpurple px-2 py-1 rounded">Admin</span>
               <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">5 members</span>
             </div>
+
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-400">8 open issues</span>
               <a href="#" class="bg-devpurple text-black rounded px-4 py-1 text-sm font-semibold hover:bg-devpurplelight transition">Open</a>
             </div>
           </div>
+          
           <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-5">
             <h3 class="text-lg font-semibold mb-1">API Refactor</h3>
             <p class="text-gray-400 mb-2">Backend improvements and bugfixes</p>
@@ -95,6 +110,7 @@
       </section>
       <!-- Activity Feed & Chat -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!--TODO: make it display the actual activity of the user who has logged in -->
         <!-- Activity Feed -->
         <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-5 h-72 flex flex-col">
           <h2 class="text-devpurple font-bold text-lg mb-3">Recent Activity</h2>

@@ -32,7 +32,6 @@ public class UserService {
         user.setEmail(registerDto.getEmail());
         user.setFullName(registerDto.getFullName());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-        user.setProfilePicture(registerDto.getProfilePicture());
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 

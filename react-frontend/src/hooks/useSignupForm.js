@@ -1,47 +1,65 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export const useSignupForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    firstName: '',
+    username: '',
+    fullName: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
   const [passwordStrength, setPasswordStrength] = useState({ show: false, level: 0, text: '' });
   const [loading, setLoading] = useState(false);
-
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const validateStep = (step) => {
     const newErrors = {};
-
     switch (step) {
-      case 1:
-        if (formData.firstName.trim().length < 2) {
-          newErrors.firstName = 'Name must be at least 2 characters long';
-        }
-        if (!/^[a-zA-Z0-9\s'-]+$/.test(formData.firstName.trim())) {
-          newErrors.firstName = 'Name can only contain letters, numbers, spaces, hyphens, and apostrophes';
+      case 1: // Username
+        if (!formData.username.trim()) {
+          newErrors.username = 'Username is required';
+        } else if (!/^[a-zA-Z0-9_]{3,20}$/.test(formData.username.trim())) {
+          newErrors.username = 'Username must be 3-20 characters and can only contain letters, numbers, and underscores';
         }
         break;
-      case 2:
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      case 2: // Full Name
+        if (!formData.fullName.trim()) {
+          newErrors.fullName = 'Full name is required';
+        } else if (formData.fullName.trim().length < 3 || formData.fullName.trim().length > 50) {
+          newErrors.fullName = 'Full name must be between 3 and 50 characters';
+        }
+        break;
+      case 3: // Email
+        if (!formData.email.trim()) {
+          newErrors.email = 'Email is required';
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email.trim())) {
           newErrors.email = 'Please enter a valid email address';
+        } else if (formData.email.trim().length > 50) {
+          newErrors.email = 'Email must be less than 50 characters';
         }
         break;
-      case 3:
-        if (formData.password.length < 8) {
-          newErrors.password = 'Password must be at least 8 characters long';
+      case 4: // Password
+        if (!formData.password) {
+          newErrors.password = 'Password is required';
+        } else if (
+          !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$/.test(formData.password)
+        ) {
+          newErrors.password =
+            'Password must be 6-20 chars, include uppercase, lowercase, digit, and special character';
         }
-        if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-          newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+        break;
+      case 5: // Confirm Password
+        if (!formData.confirmPassword) {
+          newErrors.confirmPassword = 'Please confirm your password';
+        } else if (formData.confirmPassword !== formData.password) {
+          newErrors.confirmPassword = 'Passwords do not match';
         }
         break;
       default:
         break;
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -51,21 +69,14 @@ export const useSignupForm = () => {
       setPasswordStrength({ show: false, level: 0, text: '' });
       return;
     }
-
     let strength = 0;
     let text = '';
-
-    // Length check
     if (password.length >= 8) strength += 1;
     if (password.length >= 12) strength += 1;
-
-    // Character variety checks
     if (/[a-z]/.test(password)) strength += 1;
     if (/[A-Z]/.test(password)) strength += 1;
     if (/\d/.test(password)) strength += 1;
     if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
-
-    // Determine strength level and text
     if (strength <= 2) {
       text = 'Weak';
     } else if (strength <= 4) {
@@ -75,7 +86,6 @@ export const useSignupForm = () => {
     } else {
       text = 'Strong';
     }
-
     setPasswordStrength({ show: true, level: strength, text });
   };
 
@@ -84,16 +94,12 @@ export const useSignupForm = () => {
       ...prev,
       [name]: value
     }));
-
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
         [name]: ''
       }));
     }
-
-    // Update password strength
     if (name === 'password') {
       updatePasswordStrength(value);
     }
@@ -119,20 +125,22 @@ export const useSignupForm = () => {
 
   const getStepTitle = () => {
     switch (currentStep) {
-      case 1: return 'Welcome!';
-      case 2: return 'Contact Information';
-      case 3: return 'Secure Your Account';
-      case 4: return 'Almost Done!';
+      case 1: return 'Choose a Username';
+      case 2: return 'Your Full Name';
+      case 3: return 'Contact Information';
+      case 4: return 'Create a Password';
+      case 5: return 'Confirm Password';
       default: return '';
     }
   };
 
   const getStepDescription = () => {
     switch (currentStep) {
-      case 1: return "Let's create your account. We'll guide you through each step to make this as easy as possible.";
-      case 2: return "We'll need your email address to keep in touch and secure your account.";
-      case 3: return "Choose a strong password to keep your account safe.";
-      case 4: return "Let's review your information before creating your account.";
+      case 1: return 'Pick a unique username for your account.';
+      case 2: return 'Enter your full name.';
+      case 3: return 'We need your email address to keep in touch and secure your account.';
+      case 4: return 'Choose a strong password to keep your account safe.';
+      case 5: return 'Please confirm your password.';
       default: return '';
     }
   };

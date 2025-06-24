@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSignupForm } from '../hooks/useSignupForm';
 import '../signup_styles.css';
+import { useState } from 'react';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -27,26 +28,26 @@ const Register = () => {
     if (!validateStep(currentStep)) {
       return;
     }
-
     if (currentStep === totalSteps) {
       setLoading(true);
-      
       const userData = {
-        firstName: formData.firstName,
-        lastName: '', // You can add a lastName field if needed
-        email: formData.email,
-        password: formData.password
+        username: this.formData.username,
+        fullName: this.formData.fullName,
+        email: this.formData.email,
+        password: this.formData.password,
+        confirmPassword: this.formData.confirmPassword,
+        profilePicture: "", // Optional
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
+      console.log("Register payload:", userData);
       const result = await register(userData);
-      
       if (result.success) {
         navigate('/dashboard');
       } else {
-        // Handle registration error
         console.error('Registration failed:', result.error);
       }
-      
       setLoading(false);
     } else {
       nextStep();
@@ -68,24 +69,43 @@ const Register = () => {
             <h2>{getStepTitle()}</h2>
             <p>{getStepDescription()}</p>
             <div className="form-group">
-              <label htmlFor="firstName">Enter your Name?</label>
+              <label htmlFor="username">Username</label>
               <input
                 type="text"
-                id="firstName"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter Your name"
-                className={errors.firstName ? 'error' : ''}
+                id="username"
+                value={formData.username}
+                onChange={(e) => handleInputChange('username', e.target.value)}
+                placeholder="Choose a username"
+                className={errors.username ? 'error' : ''}
               />
-              {errors.firstName && (
-                <div className="error-message show">{errors.firstName}</div>
+              {errors.username && (
+                <div className="error-message show">{errors.username}</div>
               )}
             </div>
           </div>
         );
-
       case 2:
+        return (
+          <div className="step active">
+            <h2>{getStepTitle()}</h2>
+            <p>{getStepDescription()}</p>
+            <div className="form-group">
+              <label htmlFor="fullName">Full Name</label>
+              <input
+                type="text"
+                id="fullName"
+                value={formData.fullName}
+                onChange={(e) => handleInputChange('fullName', e.target.value)}
+                placeholder="Enter your full name"
+                className={errors.fullName ? 'error' : ''}
+              />
+              {errors.fullName && (
+                <div className="error-message show">{errors.fullName}</div>
+              )}
+            </div>
+          </div>
+        );
+      case 3:
         return (
           <div className="step active">
             <h2>{getStepTitle()}</h2>
@@ -97,7 +117,6 @@ const Register = () => {
                 id="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="Enter your email"
                 className={errors.email ? 'error' : ''}
               />
@@ -107,8 +126,7 @@ const Register = () => {
             </div>
           </div>
         );
-
-      case 3:
+      case 4:
         return (
           <div className="step active">
             <h2>{getStepTitle()}</h2>
@@ -120,7 +138,6 @@ const Register = () => {
                 id="password"
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                onKeyPress={handleKeyPress}
                 placeholder="Create a password"
                 className={errors.password ? 'error' : ''}
               />
@@ -145,24 +162,27 @@ const Register = () => {
             </div>
           </div>
         );
-
-      case 4:
+      case 5:
         return (
           <div className="step active">
             <h2>{getStepTitle()}</h2>
             <p>{getStepDescription()}</p>
             <div className="form-group">
-              <div style={{ background: '#3d3d42', padding: '20px', borderRadius: '10px', marginBottom: '20px' }}>
-                <p><strong>Name:</strong> {formData.firstName}</p>
-                <p><strong>Email:</strong> {formData.email}</p>
-                <p style={{ marginTop: '15px', fontSize: '0.9rem', color: '#b0b0b0' }}>
-                  By creating an account, you agree to our Terms of Service and Privacy Policy.
-                </p>
-              </div>
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                placeholder="Re-enter your password"
+                className={errors.confirmPassword ? 'error' : ''}
+              />
+              {errors.confirmPassword && (
+                <div className="error-message show">{errors.confirmPassword}</div>
+              )}
             </div>
           </div>
         );
-
       default:
         return null;
     }

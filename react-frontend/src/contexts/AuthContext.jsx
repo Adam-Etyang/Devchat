@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      // Verify token and set user
       verifyToken();
     } else {
       setLoading(false);
@@ -31,7 +30,6 @@ export const AuthProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -46,55 +44,63 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  // Unified authentication action for login and register
+  const authAction = async (mode, data) => {
+    let url = '';
+    let payload = {};
+    if (mode === 'login') {
+      url = 'http://localhost:8080/api/auth/login';
+      payload = {
+        emailOrUsername: data.emailOrUsername,
+        password: data.password,
+      };
+    } else if (mode === 'register') {
+      url = 'http://localhost:8080/api/auth/signup';
+      payload = {
+        username: data.username,
+        email: data.email,
+        fullName: data.fullName,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+        profilePicture: data.profilePicture || '',
+      };
+    } else {
+      return { success: false, error: 'Invalid auth mode' };
+    }
+
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setToken(data.token);
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
+        // For login/register, expect AuthresponseDTO: { token, tokenType, userProfile, expiresIn }
+        const resData = await response.json();
+        setToken(resData.token);
+        setUser(resData.userProfile);
+        localStorage.setItem('token', resData.token);
         return { success: true };
       } else {
-        const error = await response.json();
-        return { success: false, error: error.message };
+        // Try to parse error message
+        let errorMsg = 'Unknown error';
+        try {
+          const error = await response.json();
+          errorMsg = error.message || JSON.stringify(error);
+        } catch (e) {}
+        return { success: false, error: errorMsg };
       }
     } catch (error) {
       return { success: false, error: 'Network error' };
     }
   };
 
-  const register = async (userData) => {
-    try {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setToken(data.token);
-        setUser(data.user);
-        localStorage.setItem('token', data.token);
-        return { success: true };
-      } else {
-        const error = await response.json();
-        return { success: false, error: error.message };
-      }
-    } catch (error) {
-      return { success: false, error: 'Network error' };
-    }
-  };
+  // Convenience wrappers
+  const login = (data) => authAction('login', data);
+  const register = (data) => authAction('register', data);
 
   const logout = () => {
     setUser(null);

@@ -54,7 +54,10 @@ const Login = () => {
 
     setLoading(true);
 
-    const result = await login(formData.email, formData.password);
+    const result = await login({
+      emailOrUsername: formData.email,
+      password: formData.password
+    });
     
     if (result.success) {
       navigate('/dashboard');

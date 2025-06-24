@@ -16,10 +16,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerdto) {
         try {
+            System.out.println(registerdto);
             User createdUser = userService.registerUser(registerdto);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("User registered successfully: " + createdUser.getUsername());
