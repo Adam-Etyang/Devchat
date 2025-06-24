@@ -69,8 +69,8 @@ class ChatHandler {
         this.newProjectBtn.addEventListener('click', () => this.createNewProject());
         
         // Toggle sidebar buttons
-        this.toggleProjectsSidebar.addEventListener('click', () => this.toggleProjectsSidebar());
-        this.toggleCodeSidebar.addEventListener('click', () => this.toggleCodeSidebar());
+        this.toggleProjectsSidebar.addEventListener('click', () => this.toggleProjectsSidebarView());
+        this.toggleCodeSidebar.addEventListener('click', () => this.toggleCodeSidebarView());
         
         // Use event delegation for project items
         this.projectsList.addEventListener('click', (e) => {
@@ -156,7 +156,7 @@ class ChatHandler {
         });
     }
 
-    toggleProjectsSidebar() {
+    toggleProjectsSidebarView() {
         this.projectsSidebarVisible = !this.projectsSidebarVisible;
         this.updateLayout();
         
@@ -171,7 +171,7 @@ class ChatHandler {
         }
     }
 
-    toggleCodeSidebar() {
+    toggleCodeSidebarView() {
         this.codeSidebarVisible = !this.codeSidebarVisible;
         this.updateLayout();
         
