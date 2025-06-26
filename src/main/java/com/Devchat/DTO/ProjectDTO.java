@@ -15,7 +15,8 @@ import java.util.List;
 
 /**
  * Data Transfer Object (DTO) for Project entity.
- * Used to transfer project data between layers without exposing internal implementation details.
+ * Used to transfer project data between layers without exposing internal
+ * implementation details.
  */
 public class ProjectDTO {
 
@@ -28,16 +29,14 @@ public class ProjectDTO {
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
 
-    //id field since we'll need it for updates and responses:
+    // id field since we'll need it for updates and responses:
     private Long id;
 
     // Project status cannot be blank
     @NotBlank(message = "Project status is required")
     private String status;
 
-    // Start date must be in the past or present
-    @NotNull(message = "Start date is required")
-    @PastOrPresent(message = "Start date must be in the past or present")
+    // Start date is optional
     private LocalDateTime startDate;
 
     // End date is optional but must be after start date if provided
@@ -50,29 +49,27 @@ public class ProjectDTO {
     // List of project members
     private List<ProjectMemberDTO> members;
 
-
-    //To track who created the project:
+    // To track who created the project:
     private Long createdById;
 
-    //to track when the project was created:
+    // to track when the project was created:
     private LocalDateTime createdAt;
 
-    //to track when the project was last updated:
+    // to track when the project was last updated:
     private LocalDateTime updatedAt;
 
-
-    //default constructor (required for JSON deserialization):
+    // default constructor (required for JSON deserialization):
     public ProjectDTO() {
     }
 
-    //Default constructor is required for JSON deserialization
-    //Constructor with required fields
+    // Default constructor is required for JSON deserialization
+    // Constructor with required fields
     public ProjectDTO(String name, String description, String status, LocalDateTime startDate, String managerId) {
         this.name = name;
         this.description = description;
-        this.status = status;
-        this.startDate = startDate;
-        this.managerId = managerId;
+    //this.status = status;
+//this.startDate = startDate;
+//this.managerId = managerId;
     }
 
     public Long getId() {

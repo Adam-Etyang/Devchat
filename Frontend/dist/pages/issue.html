@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Issue Details | Devchat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            devbg: "#0a0a0a",
+            devpurple: "#cc81ff",
+            devpurplelight: "#e6b3ff"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-black min-h-screen text-white">
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 w-full z-50 bg-black/95 backdrop-blur border-b border-[rgba(204,129,255,0.2)] shadow-lg">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <div class="font-bold text-2xl text-devpurple tracking-tight">Devchat</div>
+      <div class="hidden md:flex gap-8">
+        <a href="dashboard.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Dashboard</a>
+        <a href="project.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Projects</a>
+        <a href="issues.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Issues</a>
+        <a href="Notifications.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Messages</a>
+      </div>
+    </div>
+  </nav>
+  <div class="flex pt-24 max-w-7xl mx-auto min-h-screen">
+    <!-- Sidebar -->
+    <aside class="hidden md:block w-60 px-4">
+      <nav class="flex flex-col gap-2">
+        <a href="dashboard.html" class="block px-4 py-2 rounded-lg text-devpurple bg-devpurple/10 font-semibold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
+          </svg>
+          <span class="sr-only">Home</span>
+        </a>
+        <a href="project.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">My Projects</a>
+        <a href="issues.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Assigned Issues</a>
+        <a href="chat.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Team Chat</a>
+        <a href="Notifications.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Notifications</a>
+        <a href="settings.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Settings</a>
+      </nav>
+    </aside>
+    <!-- Issue Content -->
+    <main class="flex-1 px-4 md:px-8 space-y-8">
+      <!-- Issue Header -->
+      <section class="bg-[#18181b]/95 border border-devpurple/20 rounded-xl shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 id="issue-title" class="text-2xl md:text-3xl font-bold mb-1">Issue Title</h1>
+          <p id="issue-description" class="text-gray-300">Issue description goes here.</p>
+          <div class="flex gap-2 mt-2">
+            <span class="text-xs bg-devpurple/20 text-devpurple px-2 py-1 rounded">Bug</span>
+            <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">High Priority</span>
+            <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">Open</span>
+            <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">Assigned to @alex</span>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-4 md:mt-0">
+          <a href="#" class="bg-devpurple text-black font-semibold rounded-lg px-5 py-2 hover:bg-devpurplelight transition">Edit Issue</a>
+          <a href="#" class="bg-[#18181b] text-devpurple border border-devpurple font-semibold rounded-lg px-5 py-2 hover:bg-devpurple/10 hover:text-devpurplelight transition">Close Issue</a>
+        </div>
+      </section>
+      <!-- Comments -->
+      <section>
+        <h2 class="text-devpurple font-bold text-xl mb-4">Comments</h2>
+        <div id="issue-comments" class="space-y-4">
+          <!-- Comment cards will be injected here by JS -->
+          <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-devpurple font-semibold">@alex</span>
+              <span class="text-xs text-gray-400">2 hours ago</span>
+            </div>
+            <div class="text-gray-200">I'm working on a fix for this issue.</div>
+          </div>
+          <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-devpurple font-semibold">@sara</span>
+              <span class="text-xs text-gray-400">1 hour ago</span>
+            </div>
+            <div class="text-gray-200">Let me know if you need help with the OAuth flow.</div>
+          </div>
+        </div>
+        <!-- Add Comment Form -->
+        <form class="mt-6 flex gap-2">
+          <input type="text" class="flex-1 rounded bg-[#18181b] border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple" placeholder="Add a comment..." />
+          <button type="submit" class="bg-devpurple text-black font-semibold rounded-lg px-4 py-2 hover:bg-devpurplelight transition">Comment</button>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="../js/issue.js"></script>
+</body>
+</html> 
