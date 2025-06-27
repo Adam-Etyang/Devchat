@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevChat Room</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #0d0d0d;
+      color: #f1f1f1;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .chat-section {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .chat-header {
+      font-size: 24px;
+      font-weight: bold;
+      color: #c084fc;
+      margin-bottom: 20px;
+    }
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    .message {
+      background-color: #1f1f1f;
+      border-radius: 12px;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #9333ea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+    }
+    .msg-user {
+      font-weight: bold;
+    }
+    .msg-time {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .input-bar {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .input-bar input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background-color: #1f1f1f;
+      color: #fff;
+    }
+    .input-bar button {
+      padding: 10px 15px;
+      background-color: #9333ea;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+    }
+    .sidebar {
+      flex: 1;
+      background-color: #1a1a1a;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-item {
+      margin-bottom: 20px;
+      color: #e5e5e5;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .users-list {
+      margin-top: auto;
+    }
+    .user-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .user-name {
+      font-size: 16px;
+    }
+    .badge {
+      background-color: #6b21a8;
+      color: white;
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="chat-section">
+      <div class="chat-header">Devchat</div>
+      <div class="messages" id="messages">
+        <div class="message">
+          <div class="avatar">A</div>
+          <div class="msg-content">
+            <div><span class="msg-user">Alex</span> <span class="msg-time">1m ago</span></div>
+            <div>Pushed a fix for the login bug 🚀</div>
+          </div>
+        </div>
+        <div class="message">
+          <div class="avatar" style="background-color:#c084fc;">D</div>
+          <div class="msg-content">
+            <div><span class="msg-user">DemoUser</span> <span class="msg-time">1m ago</span></div>
+            <div>Great! Reviewing now.</div>
+          </div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <input type="text" id="chatInput" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="nav-item">Projects</div>
+      <div class="nav-item">Issues</div>
+      <div class="nav-item">Messages</div>
+      <div class="users-list">
+        <div class="user-entry">
+          <div class="avatar" style="background-color:#6b7280;">A</div>
+          <div class="user-name">Alex</div>
+        </div>
+        <div class="user-entry">
+          <div class="avatar" style="background-color:#c084fc;">D</div>
+          <div class="user-name">DemoUser <span class="badge">Admin</span></div>
+        </div>
+        <div class="user-entry">
+          <div class="avatar" style="background-color:#facc15;">S</div>
+          <div class="user-name">Sara</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- This is the JS part directing the messages to go to the Chat -->
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (text === "") return;
+
+      const messages = document.getElementById("messages");
+      const message = document.createElement("div");
+      message.className = "message";
+      message.innerHTML = `
+        <div class="avatar" style="background-color:#c084fc;">Y</div>
+        <div class="msg-content">
+          <div><span class="msg-user">You</span> <span class="msg-time">Just now</span></div>
+          <div>${text}</div>
+        </div>`;
+
+      messages.appendChild(message);
+      input.value = "";
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+</body>
+</html>
