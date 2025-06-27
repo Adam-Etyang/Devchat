@@ -71,16 +71,29 @@ class AuthHandler {
         }
 
         try {
-            await this.simulateApiCall(); // Mock API call
-            this.user = { id: Date.now(), name: 'Test User', email };
-            this.isAuthenticated = true;
-            localStorage.setItem('devchat_user', JSON.stringify(this.user));
-            localStorage.setItem('devchat_token', 'mock_jwt_token');
-            this.app.showToast('Sign in successful!', 'success');
-            this.updateUI();
-            this.app.navigation.navigateToPage('chat');
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.user = data.user;
+                this.isAuthenticated = true;
+                localStorage.setItem('devchat_user', JSON.stringify(this.user));
+                localStorage.setItem('devchat_token', data.token);
+                this.app.showToast('Sign in successful!', 'success');
+                this.updateUI();
+                this.app.navigation.navigateToPage('chat');
+            } else {
+                const errorData = await response.json();
+                this.app.showToast(errorData.message || 'Sign in failed. Please check your credentials.', 'error');
+            }
         } catch (error) {
-            this.app.showToast('Sign in failed. Please check your credentials.', 'error');
+            this.app.showToast('Sign in failed. Please try again.', 'error');
         }
     }
 
@@ -96,14 +109,27 @@ class AuthHandler {
         }
 
         try {
-            await this.simulateApiCall(); // Mock API call
-            this.user = { id: Date.now(), name, email };
-            this.isAuthenticated = true;
-            localStorage.setItem('devchat_user', JSON.stringify(this.user));
-            localStorage.setItem('devchat_token', 'mock_jwt_token');
-            this.app.showToast('Account created successfully!', 'success');
-            this.updateUI();
-            this.app.navigation.navigateToPage('chat');
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: name, email, password }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.user = data.user;
+                this.isAuthenticated = true;
+                localStorage.setItem('devchat_user', JSON.stringify(this.user));
+                localStorage.setItem('devchat_token', data.token);
+                this.app.showToast('Account created successfully!', 'success');
+                this.updateUI();
+                this.app.navigation.navigateToPage('chat');
+            } else {
+                const errorData = await response.json();
+                this.app.showToast(errorData.message || 'Sign up failed. Please try again.', 'error');
+            }
         } catch (error) {
             this.app.showToast('Sign up failed. Please try again.', 'error');
         }
@@ -171,9 +197,7 @@ class AuthHandler {
         this.loadSettings();
     }
     
-    simulateApiCall() {
-        return new Promise(resolve => setTimeout(resolve, 500));
-    }
+    
 
     handleAvatarUpload(e) {
         const file = e.target.files[0];
