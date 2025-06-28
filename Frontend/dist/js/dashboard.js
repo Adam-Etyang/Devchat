@@ -1,4 +1,6 @@
-import { fetchProjectsByUser } from './project.js';
+import realtimeManager from './realtime.js';
+import { fetchAllProjects, createProject } from './project.js';
+import { fetchAllIssues } from './issue.js';
 
 // Mock: get current user info (replace with real API call when available)
 async function fetchCurrentUser() {
@@ -33,82 +35,400 @@ async function fetchAssignedIssues(userId) {
   ];
 }
 
-// Mock: fetch recent activity (replace with real API call)
-async function fetchRecentActivity(userId) {
-  return [
-    { text: 'You mentioned <b>@alex</b> in <b>Devchat Platform</b>', time: '2m ago' },
-    { text: '<b>API Refactor</b> issue <b>#42</b> assigned to you', time: '10m ago' },
-    { text: 'New message in <b>Team Chat</b>', time: '30m ago' }
-  ];
+// Fetch all users for manager dropdown
+async function fetchAllUsers() {
+  const res = await fetch('http://localhost:8080/api/auth/all');
+  if (!res.ok) throw new Error('Failed to fetch users');
+  return res.json();
 }
 
-// Populate dashboard
-async function populateDashboard() {
-  const user = await fetchCurrentUser();
-  document.getElementById('username').textContent = user.username;
-
-  // Projects
-  let projects = [];
-  try {
-    projects = await fetchProjectsByUser(user.id);
-  } catch (e) {
-    // fallback to empty or mock
-    projects = [];
+// Modal management
+function openCreateModal() {
+  const modal = document.getElementById('create-project-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    loadModalData();
   }
-  const projectsList = document.getElementById('projects-list');
-  projectsList.innerHTML = '';
-  projects.forEach(p => {
-    projectsList.innerHTML += `
-      <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-5">
-        <h3 class="text-lg font-semibold mb-1">${p.name}</h3>
-        <p class="text-gray-400 mb-2">${p.description}</p>
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-xs bg-devpurple/20 text-devpurple px-2 py-1 rounded">${p.role || ''}</span>
-          <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">${p.members || 0} members</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-400">${p.openIssues || 0} open issues</span>
-          <a href="../pages/projects.html" class="bg-devpurple text-black rounded px-4 py-1 text-sm font-semibold hover:bg-devpurplelight transition">Open</a>
-        </div>
-      </div>
-    `;
-  });
+}
 
-  // Activity
-  const activity = await fetchRecentActivity(user.id);
-  const activityFeed = document.getElementById('activity-feed');
-  activityFeed.innerHTML = '';
-  activity.forEach(a => {
-    activityFeed.innerHTML += `
-      <div class="flex items-center gap-3">
-        <span class="w-2 h-2 rounded-full bg-devpurple"></span>
-        <span class="text-gray-200 text-sm">${a.text}</span>
-        <span class="ml-auto text-xs text-gray-400">${a.time}</span>
-      </div>
-    `;
-  });
+function closeCreateModal() {
+  const modal = document.getElementById('create-project-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.getElementById('create-project-form').reset();
+  }
+}
 
-  // Assigned Issues
-  const assignedIssues = await fetchAssignedIssues(user.id);
-  const assignedIssuesDiv = document.getElementById('assigned-issues');
-  assignedIssuesDiv.innerHTML = '';
-  assignedIssues.forEach(issue => {
-    assignedIssuesDiv.innerHTML += `
-      <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-4 flex flex-col gap-2">
+// Load users for manager dropdown
+async function loadModalData() {
+  try {
+    const users = await fetchAllUsers();
+
+    // Populate manager dropdown
+    const managerSelect = document.getElementById('project-manager');
+    if (managerSelect) {
+      managerSelect.innerHTML = '<option value="">Select manager</option>';
+      users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.username;
+        managerSelect.appendChild(option);
+      });
+    }
+
+    // Set default start date
+    const startDateInput = document.getElementById('project-start-date');
+    if (startDateInput) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      startDateInput.value = defaultDateTime;
+    }
+  } catch (error) {
+    console.error('Error loading modal data:', error);
+    showNotification('Error loading form data', 'error');
+  }
+}
+
+// Load and display recent projects
+async function loadRecentProjects() {
+  try {
+    const projects = await fetchAllProjects();
+    const recentProjectsContainer = document.getElementById('recent-projects');
+    
+    if (!recentProjectsContainer) return;
+    
+    if (projects.length === 0) {
+      recentProjectsContainer.innerHTML = `
+        <div class="text-gray-400 text-sm">No projects yet</div>
+      `;
+      return;
+    }
+    
+    // Show only the 3 most recent projects
+    const recentProjects = projects.slice(0, 3);
+    
+    recentProjectsContainer.innerHTML = recentProjects.map(project => `
+      <div class="flex items-center justify-between p-3 bg-[#18181b]/50 rounded-lg border border-devpurple/10">
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-100 text-sm">${project.name}</h4>
+          <p class="text-xs text-gray-400">${formatDate(project.createdAt)}</p>
+        </div>
         <div class="flex items-center gap-2">
-          <span class="text-sm bg-devpurple/20 text-devpurple px-2 py-1 rounded">${issue.type}</span>
-          <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">${issue.priority}</span>
-          <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">${issue.status}</span>
-        </div>
-        <div class="font-semibold text-gray-100">${issue.title}</div>
-        <div class="text-xs text-gray-400">Project: ${issue.project}</div>
-        <div class="flex justify-between items-center">
-          <span class="text-xs text-gray-400">Assigned by ${issue.assignedBy}</span>
-          <a href="${issue.link}" class="bg-devpurple text-black rounded px-4 py-1 text-sm font-semibold hover:bg-devpurplelight transition">View</a>
+          <span class="text-xs ${getStatusColor(project.status)} px-2 py-1 rounded-full">${project.status || 'ACTIVE'}</span>
+          <a href="project/project.html" class="text-devpurple hover:text-devpurplelight text-xs">View</a>
         </div>
       </div>
-    `;
+    `).join('');
+    
+    // Add "View All" link if there are more projects
+    if (projects.length > 3) {
+      const viewAllLink = document.createElement('div');
+      viewAllLink.innerHTML = `
+        <a href="project/project.html" class="text-devpurple hover:text-devpurplelight text-sm">View all ${projects.length} projects</a>
+      `;
+      recentProjectsContainer.appendChild(viewAllLink);
+    }
+    
+  } catch (error) {
+    console.error('Error loading recent projects:', error);
+    const recentProjectsContainer = document.getElementById('recent-projects');
+    if (recentProjectsContainer) {
+      recentProjectsContainer.innerHTML = `
+        <div class="text-red-400 text-sm">Error loading projects</div>
+      `;
+    }
+  }
+}
+
+// Load and display recent issues
+async function loadRecentIssues() {
+  try {
+    const issues = await fetchAllIssues();
+    const recentIssuesContainer = document.getElementById('recent-issues');
+    
+    if (!recentIssuesContainer) return;
+    
+    if (issues.length === 0) {
+      recentIssuesContainer.innerHTML = `
+        <div class="text-gray-400 text-sm">No issues found</div>
+      `;
+      return;
+    }
+    
+    // Show only the 3 most recent issues
+    const recentIssues = issues.slice(0, 3);
+    
+    recentIssuesContainer.innerHTML = recentIssues.map(issue => `
+      <div class="flex items-center justify-between p-3 bg-[#18181b]/50 rounded-lg border border-devpurple/10">
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-100 text-sm">${issue.title}</h4>
+          <p class="text-xs text-gray-400">${formatDate(issue.createdAt)}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs ${getIssueStatusColor(issue.status)} px-2 py-1 rounded-full">${issue.status || 'OPEN'}</span>
+          <a href="issue.html" class="text-devpurple hover:text-devpurplelight text-xs">View</a>
+        </div>
+      </div>
+    `).join('');
+    
+    // Add "View All" link if there are more issues
+    if (issues.length > 3) {
+      const viewAllLink = document.createElement('div');
+      viewAllLink.innerHTML = `
+        <a href="issue.html" class="text-devpurple hover:text-devpurplelight text-sm">View all ${issues.length} issues</a>
+      `;
+      recentIssuesContainer.appendChild(viewAllLink);
+    }
+    
+  } catch (error) {
+    console.error('Error loading recent issues:', error);
+    const recentIssuesContainer = document.getElementById('recent-issues');
+    if (recentIssuesContainer) {
+      recentIssuesContainer.innerHTML = `
+        <div class="text-red-400 text-sm">Error loading issues</div>
+      `;
+    }
+  }
+}
+
+// Load and display recent activity
+async function loadRecentActivity() {
+  try {
+    const response = await fetch('http://localhost:8080/api/updates/recent');
+    
+    if (!response.ok) {
+      console.warn('Recent activity endpoint returned status:', response.status);
+      const activityContainer = document.getElementById('recent-activity');
+      if (activityContainer) {
+        activityContainer.innerHTML = `
+          <div class="text-gray-400 text-sm">No recent activity</div>
+        `;
+      }
+      return;
+    }
+    
+    const updates = await response.json();
+    
+    const activityContainer = document.getElementById('recent-activity');
+    if (!activityContainer) return;
+    
+    if (updates.length === 0) {
+      activityContainer.innerHTML = `
+        <div class="text-gray-400 text-sm">No recent activity</div>
+      `;
+      return;
+    }
+    
+    // Show only the 5 most recent updates
+    const recentUpdates = updates.slice(0, 5);
+    
+    activityContainer.innerHTML = recentUpdates.map(update => `
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-devpurple"></span>
+        <span class="text-gray-200 text-sm">
+          ${update.action} ${update.type}: ${update.entityName}
+        </span>
+        <span class="ml-auto text-xs text-gray-400">${formatDate(update.createdAt)}</span>
+      </div>
+    `).join('');
+    
+  } catch (error) {
+    console.warn('Error loading recent activity (this is normal if the backend is not running):', error.message);
+    const activityContainer = document.getElementById('recent-activity');
+    if (activityContainer) {
+      activityContainer.innerHTML = `
+        <div class="text-gray-400 text-sm">No recent activity</div>
+      `;
+    }
+  }
+}
+
+// Get status color class for projects
+function getStatusColor(status) {
+  switch (status) {
+    case 'ACTIVE':
+      return 'bg-green-500/20 text-green-400';
+    case 'PLANNING':
+      return 'bg-blue-500/20 text-blue-400';
+    case 'COMPLETED':
+      return 'bg-gray-500/20 text-gray-400';
+    case 'ON_HOLD':
+      return 'bg-yellow-500/20 text-yellow-400';
+    default:
+      return 'bg-devpurple/20 text-devpurple';
+  }
+}
+
+// Get status color class for issues
+function getIssueStatusColor(status) {
+  switch (status) {
+    case 'OPEN':
+      return 'bg-red-500/20 text-red-400';
+    case 'IN_PROGRESS':
+      return 'bg-yellow-500/20 text-yellow-400';
+    case 'RESOLVED':
+      return 'bg-green-500/20 text-green-400';
+    case 'CLOSED':
+      return 'bg-gray-500/20 text-gray-400';
+    default:
+      return 'bg-devpurple/20 text-devpurple';
+  }
+}
+
+// Format date for display
+function formatDate(dateString) {
+  if (!dateString) return 'recently';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+  
+  if (diffInHours < 1) return 'just now';
+  if (diffInHours < 24) return `${diffInHours} hours ago`;
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  
+  return date.toLocaleDateString();
+}
+
+// Initialize real-time updates
+function initializeRealtimeUpdates() {
+  // Subscribe to project updates
+  realtimeManager.subscribe('projects', (data) => {
+    console.log('Project update received on dashboard:', data);
+    
+    if (data.action === 'created' || data.action === 'updated' || data.action === 'deleted') {
+      // Refresh the projects list
+      loadRecentProjects();
+      // Refresh activity
+      loadRecentActivity();
+      
+      // Show notification for new projects
+      if (data.action === 'created') {
+        showNotification(`New project "${data.project.name}" created!`, 'success');
+      }
+    }
+  });
+
+  // Subscribe to issue updates
+  realtimeManager.subscribe('issues', (data) => {
+    console.log('Issue update received on dashboard:', data);
+    
+    if (data.action === 'created' || data.action === 'updated' || data.action === 'deleted') {
+      // Refresh the issues list
+      loadRecentIssues();
+      // Refresh activity
+      loadRecentActivity();
+      
+      // Show notification for new issues
+      if (data.action === 'created') {
+        showNotification(`New issue "${data.issue.title}" created!`, 'success');
+      }
+    }
   });
 }
 
-document.addEventListener('DOMContentLoaded', populateDashboard);
+// Show notification
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `fixed top-20 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transform transition-transform duration-300 translate-x-full`;
+  
+  // Set color based on type
+  switch (type) {
+    case 'success':
+      notification.classList.add('bg-green-500', 'text-white');
+      break;
+    case 'error':
+      notification.classList.add('bg-red-500', 'text-white');
+      break;
+    case 'warning':
+      notification.classList.add('bg-yellow-500', 'text-black');
+      break;
+    default:
+      notification.classList.add('bg-devpurple', 'text-black');
+  }
+  
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  // Animate in
+  setTimeout(() => {
+    notification.classList.remove('translate-x-full');
+  }, 100);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.classList.add('translate-x-full');
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('Dashboard initializing...');
+  
+  // Load all dashboard data
+  await Promise.all([
+    loadRecentProjects(),
+    loadRecentIssues(),
+    loadRecentActivity()
+  ]);
+  
+  // Initialize real-time updates
+  initializeRealtimeUpdates();
+  
+  // Set up modal handlers
+  const createProjectBtn = document.getElementById('create-project-btn');
+  const closeModalBtn = document.getElementById('close-project-modal');
+  const cancelProjectBtn = document.getElementById('cancel-project');
+  const createProjectForm = document.getElementById('create-project-form');
+  
+  if (createProjectBtn) {
+    createProjectBtn.addEventListener('click', openCreateModal);
+  }
+  
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeCreateModal);
+  }
+  
+  if (cancelProjectBtn) {
+    cancelProjectBtn.addEventListener('click', closeCreateModal);
+  }
+  
+  // Set up form submission
+  if (createProjectForm) {
+    createProjectForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(createProjectForm);
+      const projectData = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        status: formData.get('status'),
+        startDate: formData.get('startDate'),
+        endDate: formData.get('endDate') || null,
+        managerId: parseInt(formData.get('managerId'))
+      };
+      
+      try {
+        await createProject(projectData);
+        closeCreateModal();
+        showNotification('Project created successfully!', 'success');
+      } catch (error) {
+        console.error('Error creating project:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    });
+  }
+  
+  console.log('Dashboard initialized successfully');
+});

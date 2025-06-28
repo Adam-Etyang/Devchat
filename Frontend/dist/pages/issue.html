@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Issue Details | Devchat</title>
+  <title>Issues | Devchat</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -23,12 +23,12 @@
   <!-- Navbar -->
   <nav class="fixed top-0 left-0 w-full z-50 bg-black/95 backdrop-blur border-b border-[rgba(204,129,255,0.2)] shadow-lg">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-      <div class="font-bold text-2xl text-devpurple tracking-tight">Devchat</div>
+      <a href="dashboard.html" class="font-bold text-2xl text-devpurple tracking-tight">Devchat</a>
       <div class="hidden md:flex gap-8">
-        <a href="../pages/dashboard.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Dashboard</a>
-        <a href="../pages/project/project.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Projects</a>
-        <a href="../pages/issue.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Issues</a>
-        <a href="../pages/Notifications.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Messages</a>
+        <a href="dashboard.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Dashboard</a>
+        <a href="project/project.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Projects</a>
+        <a href="issue.html" class="relative text-devpurple font-medium transition">Issues</a>
+        <a href="Notifications.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Messages</a>
       </div>
     </div>
   </nav>
@@ -36,66 +36,177 @@
     <!-- Sidebar -->
     <aside class="hidden md:block w-60 px-4">
       <nav class="flex flex-col gap-2">
-        <a href="../pages/dashboard.html" class="block px-4 py-2 rounded-lg text-devpurple bg-devpurple/10 font-semibold flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <a href="dashboard.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline mr-2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
           </svg>
-          <span class="sr-only">Home</span>
+          Dashboard
         </a>
-        <a href="../pages/project/project.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">My Projects</a>
-        <a href="../pages/issue.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Assigned Issues</a>
-        <a href="../pages/chat.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Team Chat</a>
-        <a href="../pages/Notifications.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Notifications</a>
-        <a href="../pages/settings.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Settings</a>
+        <a href="project/project.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">My Projects</a>
+        <a href="issue.html" class="block px-4 py-2 rounded-lg text-devpurple bg-devpurple/10 font-semibold">Issues</a>
+        <a href="chat.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Team Chat</a>
+        <a href="Notifications.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Notifications</a>
+        <a href="settings.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Settings</a>
       </nav>
     </aside>
-    <!-- Issue Content -->
+    <!-- Issues Content -->
     <main class="flex-1 px-4 md:px-8 space-y-8">
-      <!-- Issue Header -->
+      <!-- Issues Header -->
       <section class="bg-[#18181b]/95 border border-devpurple/20 rounded-xl shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 id="issue-title" class="text-2xl md:text-3xl font-bold mb-1">Issue Title</h1>
-          <p id="issue-description" class="text-gray-300">Issue description goes here.</p>
-          <div class="flex gap-2 mt-2">
-            <span class="text-xs bg-devpurple/20 text-devpurple px-2 py-1 rounded">Bug</span>
-            <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">High Priority</span>
-            <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">Open</span>
-            <span class="text-xs bg-[#18181b] text-gray-300 px-2 py-1 rounded">Assigned to @alex</span>
-          </div>
+          <h1 class="text-2xl md:text-3xl font-bold mb-1 text-devpurple">Issues</h1>
+          <p class="text-gray-300">Track and manage project issues</p>
         </div>
-        <div class="flex gap-3 mt-4 md:mt-0">
-          <a href="#" class="bg-devpurple text-black font-semibold rounded-lg px-5 py-2 hover:bg-devpurplelight transition">Edit Issue</a>
-          <a href="#" class="bg-[#18181b] text-devpurple border border-devpurple font-semibold rounded-lg px-5 py-2 hover:bg-devpurple/10 hover:text-devpurplelight transition">Close Issue</a>
+        <div class="flex gap-3">
+          <button id="create-issue-btn" class="bg-devpurple text-black font-semibold rounded-lg px-5 py-2 hover:bg-devpurplelight transition">Create Issue</button>
         </div>
       </section>
-      <!-- Comments -->
-      <section>
-        <h2 class="text-devpurple font-bold text-xl mb-4">Comments</h2>
-        <div id="issue-comments" class="space-y-4">
-          <!-- Comment cards will be injected here by JS -->
-          <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-4">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-devpurple font-semibold">@alex</span>
-              <span class="text-xs text-gray-400">2 hours ago</span>
-            </div>
-            <div class="text-gray-200">I'm working on a fix for this issue.</div>
+      
+      <!-- Filters and Search -->
+      <section class="bg-[#18181b]/95 border border-devpurple/20 rounded-xl shadow p-6">
+        <div class="flex flex-col md:flex-row gap-4 items-center">
+          <div class="flex-1">
+            <input type="text" id="search-issues" placeholder="Search issues..." class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple">
           </div>
-          <div class="bg-[#18181b]/95 border border-devpurple/15 rounded-xl shadow p-4">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-devpurple font-semibold">@sara</span>
-              <span class="text-xs text-gray-400">1 hour ago</span>
-            </div>
-            <div class="text-gray-200">Let me know if you need help with the OAuth flow.</div>
+          <div class="flex gap-2">
+            <select id="status-filter" class="bg-black border border-devpurple/30 text-gray-100 px-3 py-2 rounded focus:outline-none focus:border-devpurple">
+              <option value="">All Status</option>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="CLOSED">Closed</option>
+            </select>
+            <select id="priority-filter" class="bg-black border border-devpurple/30 text-gray-100 px-3 py-2 rounded focus:outline-none focus:border-devpurple">
+              <option value="">All Priority</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical</option>
+            </select>
+            <select id="type-filter" class="bg-black border border-devpurple/30 text-gray-100 px-3 py-2 rounded focus:outline-none focus:border-devpurple">
+              <option value="">All Types</option>
+              <option value="BUG">Bug</option>
+              <option value="FEATURE">Feature</option>
+              <option value="TASK">Task</option>
+              <option value="IMPROVEMENT">Improvement</option>
+            </select>
           </div>
         </div>
-        <!-- Add Comment Form -->
-        <form class="mt-6 flex gap-2">
-          <input type="text" class="flex-1 rounded bg-[#18181b] border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple" placeholder="Add a comment..." />
-          <button type="submit" class="bg-devpurple text-black font-semibold rounded-lg px-4 py-2 hover:bg-devpurplelight transition">Comment</button>
-        </form>
+      </section>
+      
+      <!-- Issues List -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-devpurple">All Issues</h2>
+          <div class="flex items-center gap-2">
+            <span id="issues-count" class="text-sm text-gray-400">0 issues</span>
+            <select id="sort-issues" class="bg-black border border-devpurple/30 text-gray-100 px-2 py-1 rounded text-sm focus:outline-none focus:border-devpurple">
+              <option value="created-desc">Newest First</option>
+              <option value="created-asc">Oldest First</option>
+              <option value="priority-desc">Priority (High to Low)</option>
+              <option value="priority-asc">Priority (Low to High)</option>
+              <option value="title-asc">Title A-Z</option>
+              <option value="title-desc">Title Z-A</option>
+            </select>
+          </div>
+        </div>
+        <div id="issues-list" class="space-y-4">
+          <!-- Issue cards will be injected here by JS -->
+          <div class="text-center text-gray-400 py-8">
+            <p>Loading issues...</p>
+          </div>
+        </div>
       </section>
     </main>
   </div>
+
+  <!-- Create Issue Modal -->
+  <div id="create-issue-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-[#18181b] border border-devpurple/20 rounded-xl shadow-lg w-full max-w-2xl">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-devpurple">Create New Issue</h2>
+            <button id="close-modal" class="text-gray-400 hover:text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <form id="create-issue-form" class="space-y-4">
+            <div>
+              <label class="block mb-2 font-semibold" for="issue-title">Title<span class="text-devpurple">*</span></label>
+              <input required type="text" id="issue-title" name="title" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple" placeholder="Enter issue title">
+            </div>
+            
+            <div>
+              <label class="block mb-2 font-semibold" for="issue-description">Description</label>
+              <textarea id="issue-description" name="description" rows="4" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple" placeholder="Describe the issue..."></textarea>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block mb-2 font-semibold" for="issue-type">Type<span class="text-devpurple">*</span></label>
+                <select required id="issue-type" name="type" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple">
+                  <option value="">Select type</option>
+                  <option value="BUG">Bug</option>
+                  <option value="FEATURE">Feature</option>
+                  <option value="TASK">Task</option>
+                  <option value="IMPROVEMENT">Improvement</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block mb-2 font-semibold" for="issue-priority">Priority<span class="text-devpurple">*</span></label>
+                <select required id="issue-priority" name="priority" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple">
+                  <option value="">Select priority</option>
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="CRITICAL">Critical</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block mb-2 font-semibold" for="issue-status">Status<span class="text-devpurple">*</span></label>
+                <select required id="issue-status" name="status" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple">
+                  <option value="OPEN">Open</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="RESOLVED">Resolved</option>
+                  <option value="CLOSED">Closed</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block mb-2 font-semibold" for="issue-project">Project<span class="text-devpurple">*</span></label>
+                <select required id="issue-project" name="projectId" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple">
+                  <option value="">Select project</option>
+                  <!-- Projects will be loaded dynamically -->
+                </select>
+              </div>
+              
+              <div>
+                <label class="block mb-2 font-semibold" for="issue-assignee">Assignee</label>
+                <select id="issue-assignee" name="assignedToId" class="w-full rounded bg-black border border-devpurple/30 px-3 py-2 text-gray-100 focus:outline-none focus:border-devpurple">
+                  <option value="">Unassigned</option>
+                  <!-- Users will be loaded dynamically -->
+                </select>
+              </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4">
+              <button type="button" id="cancel-issue" class="bg-gray-600 text-white font-semibold rounded-lg px-4 py-2 hover:bg-gray-700 transition">Cancel</button>
+              <button type="submit" class="bg-devpurple text-black font-semibold rounded-lg px-4 py-2 hover:bg-devpurplelight transition">Create Issue</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <script type="module" src="../js/issue.js"></script>
 </body>
 </html> 
