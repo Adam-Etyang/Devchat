@@ -21,6 +21,10 @@ public class User {
 
     private String password;
 
+    private String phone;
+    private String bio;
+    private String location;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

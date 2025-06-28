@@ -9,10 +9,12 @@ import java.util.stream.Collectors;
 
 /**
  * Mapper class to convert between Project entity and ProjectDTO.
- * Handles the conversion of data between the persistence layer and the API layer.
+ * Handles the conversion of data between the persistence layer and the API
+ * layer.
  */
-@Component //marks this as a Spring-managed bean that can be automatically injected where needed
-           //This allows the mapper to be used throughout your application
+@Component // marks this as a Spring-managed bean that can be automatically injected where
+           // needed
+           // This allows the mapper to be used throughout your application
 public class ProjectMapper {
 
     /**
@@ -22,10 +24,10 @@ public class ProjectMapper {
      * @return The converted ProjectDTO
      */
 
-    //Converts a Project entity to a ProjectDTO
-    //Handles null checks to prevent NullPointerExceptions
-    //Maps all relevant fields from the entity to the DTO
-    //Special handling for the creator relationship by only passing the ID
+    // Converts a Project entity to a ProjectDTO
+    // Handles null checks to prevent NullPointerExceptions
+    // Maps all relevant fields from the entity to the DTO
+    // Special handling for the creator relationship by only passing the ID
     public ProjectDTO toDTO(Project project) {
         if (project == null) {
             return null;
@@ -35,11 +37,15 @@ public class ProjectMapper {
         dto.setId(project.getId());
         dto.setName(project.getName());
         dto.setDescription(project.getDescription());
+        dto.setStatus(project.getStatus());
+        dto.setStartDate(project.getStartDate());
+        dto.setEndDate(project.getEndDate());
         dto.setCreatedAt(project.getCreatedAt());
 
         // Set creator ID if available
         if (project.getCreatedBy() != null) {
             dto.setCreatedById(project.getCreatedBy().getId());
+            dto.setManagerId(project.getCreatedBy().getId().toString());
         }
 
         return dto;
@@ -51,8 +57,8 @@ public class ProjectMapper {
      * @param dto The ProjectDTO to convert
      * @return The converted Project entity
      */
-    //Converts a ProjectDTO back to a Project entity
-    //Maps all fields from the DTO to the entity
+    // Converts a ProjectDTO back to a Project entity
+    // Maps all fields from the DTO to the entity
     public Project toEntity(ProjectDTO dto) {
         if (dto == null) {
             return null;
@@ -62,6 +68,9 @@ public class ProjectMapper {
         project.setId(dto.getId());
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
+        project.setStatus(dto.getStatus());
+        project.setStartDate(dto.getStartDate());
+        project.setEndDate(dto.getEndDate());
         project.setCreatedAt(dto.getCreatedAt());
 
         return project;
@@ -73,9 +82,9 @@ public class ProjectMapper {
      * @param projects The list of Project entities to convert
      * @return The converted list of ProjectDTOs
      */
-    //Converts a list of Project entities to a list of ProjectDTOs
-    //Uses Java streams for efficient conversion
-    //Handles null checks
+    // Converts a list of Project entities to a list of ProjectDTOs
+    // Uses Java streams for efficient conversion
+    // Handles null checks
     public List<ProjectDTO> toDTOList(List<Project> projects) {
         if (projects == null) {
             return null;

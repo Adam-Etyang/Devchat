@@ -62,14 +62,13 @@ public class ProjectDTO {
     public ProjectDTO() {
     }
 
-    // Default constructor is required for JSON deserialization
     // Constructor with required fields
     public ProjectDTO(String name, String description, String status, LocalDateTime startDate, String managerId) {
         this.name = name;
         this.description = description;
-    //this.status = status;
-//this.startDate = startDate;
-//this.managerId = managerId;
+        this.status = status;
+        this.startDate = startDate;
+        this.managerId = managerId;
     }
 
     public Long getId() {

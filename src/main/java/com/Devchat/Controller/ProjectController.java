@@ -15,19 +15,21 @@ import org.springframework.web.bind.annotation.*;
 
 // For handling collections of projects
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * REST Controller for handling Project-related HTTP requests.
  * Provides endpoints for CRUD operations on projects.
  */
-@RestController//Tells Spring this is a REST controller
-@RequestMapping("/api/projects")//Sets the base URL for all endpoints in this controller
+@RestController // Tells Spring this is a REST controller
+@RequestMapping("/api/projects") // Sets the base URL for all endpoints in this controller
 public class ProjectController {
 
-    //Declares our service dependency
+    // Declares our service dependency
     private final ProjectService projectService;//
 
-    //Uses constructor injection (best practice)
+    // Uses constructor injection (best practice)
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
@@ -35,26 +37,34 @@ public class ProjectController {
     /**
      * Creates a new project.
      *
-     * @param projectDTO The project data to create
+     * @param createRequest The project creation request
      * @return ResponseEntity containing the created project
      */
-    @PostMapping// Handles HTTP POST requests
-    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) {
-        // Get the current user's ID from security context or pass it as a parameter
-        // For now, we'll use a default value or get it from the security context
-        Long creatorId = getCurrentUserId(); // You need to implement this method
+    @PostMapping("/create") // Handles HTTP POST requests
+    public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectCreateRequest createRequest) {
+        try {
+            System.out.println("Received project creation request: " + createRequest.getName());
 
-        ProjectDTO createdProject = projectService.createProject(projectDTO, creatorId);
-        return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
-    }
+            // Convert the request to ProjectDTO
+            ProjectDTO projectDTO = createRequest.toProjectDTO();
+            System.out.println("Converted to ProjectDTO: " + projectDTO.getName());
 
-    // Helper method to get current user ID
-    private Long getCurrentUserId() {
-        // Implement this based on your security setup
-        // For example, if using Spring Security:
-        // return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
-        // For now, you might want to return a default value or throw an exception
-        throw new UnsupportedOperationException("User ID must be provided");
+            // Use the managerId from the request body as the creator ID
+            Long creatorId = Long.parseLong(projectDTO.getManagerId());
+            System.out.println("Creator ID: " + creatorId);
+
+            ProjectDTO createdProject = projectService.createProject(projectDTO, creatorId);
+            System.out.println("Project created successfully with ID: " + createdProject.getId());
+
+            return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
+        } catch (NumberFormatException e) {
+            System.err.println("NumberFormatException: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            System.err.println("Exception in createProject: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
@@ -63,9 +73,9 @@ public class ProjectController {
      * @param id The ID of the project to retrieve
      * @return ResponseEntity containing the project if found
      */
-    @GetMapping("/{id}")// Handles GET requests with ID parameter
-    //@PathVariable: Gets ID from URL
-    //Returns 200 (OK) with the project
+    @GetMapping("/{id}") // Handles GET requests with ID parameter
+    // @PathVariable: Gets ID from URL
+    // Returns 200 (OK) with the project
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
         ProjectDTO project = projectService.getProjectById(id);
         return ResponseEntity.ok(project);
@@ -76,23 +86,32 @@ public class ProjectController {
      *
      * @return ResponseEntity containing a list of all projects
      */
-    @GetMapping//Handles GET requests without parameters
-    //Returns list of all projects
-    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
-        List<ProjectDTO> projects = projectService.getAllProjects();
-        return ResponseEntity.ok(projects);
+    @GetMapping // Handles GET requests without parameters
+    // Returns list of all projects
+    public ResponseEntity<List<ProjectDTO>> getAllProjects(
+            @RequestParam(required = false) Long userId) {
+
+        if (userId != null) {
+            // Get projects by user ID
+            List<ProjectDTO> userProjects = projectService.getProjectsByUserId(userId);
+            return ResponseEntity.ok(userProjects);
+        } else {
+            // Get all projects
+            List<ProjectDTO> projects = projectService.getAllProjects();
+            return ResponseEntity.ok(projects);
+        }
     }
 
     /**
      * Updates an existing project.
      *
-     * @param id The ID of the project to update
+     * @param id         The ID of the project to update
      * @param projectDTO The updated project data
      * @return ResponseEntity containing the updated project
      */
-    @PutMapping("/{id}")// Handles PUT requests
-    //Takes both ID and updated data
-    //Returns updated project
+    @PutMapping("/{id}") // Handles PUT requests
+    // Takes both ID and updated data
+    // Returns updated project
     public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable Long id,
             @Valid @RequestBody ProjectDTO projectDTO) {
@@ -106,8 +125,8 @@ public class ProjectController {
      * @param id The ID of the project to delete
      * @return ResponseEntity with no content
      */
-    @DeleteMapping("/{id}")//Handles DELETE requests
-    //Returns 204 (NO CONTENT) on success
+    @DeleteMapping("/{id}") // Handles DELETE requests
+    // Returns 204 (NO CONTENT) on success
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();

@@ -1,4 +1,5 @@
 package com.Devchat.entity;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,18 @@ public class Project {
     @Column
     private String description;
 
+    // Project status field
+    @Column(nullable = false)
+    private String status;
+
+    // Project start date
+    @Column
+    private LocalDateTime startDate;
+
+    // Project end date
+    @Column
+    private LocalDateTime endDate;
+
     // Defines a many-to-one relationship with User entity
     // Many projects can be created by one user
     @ManyToOne
@@ -31,31 +44,38 @@ public class Project {
     @JoinColumn(name = "created_by_id", nullable = false)
     private User createdBy;
 
+    // Defines a many-to-one relationship with User entity for owner
+    // Many projects can be owned by one user
+    @ManyToOne
+    // Specifies the foreign key column name and that it cannot be null
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
     // Stores the date and time when the project was created
     private LocalDateTime createdAt;
 
     // Defines a one-to-many relationship with ProjectMember entity
     // One project can have many members
     @OneToMany(
-            // Specifies that the ProjectMember entity has a field named 'project' that maps back to this entity
+            // Specifies that the ProjectMember entity has a field named 'project' that maps
+            // back to this entity
             mappedBy = "project",
             // Specifies that operations on Project should cascade to ProjectMember
             cascade = CascadeType.ALL,
             // If a ProjectMember is removed from this list, delete it from the database
-            orphanRemoval = true
-    )
+            orphanRemoval = true)
     private List<ProjectMember> members;
 
     // Defines a one-to-many relationship with Issue entity
     // One project can have many issues
     @OneToMany(
-            // Specifies that the Issue entity has a field named 'project' that maps back to this entity
+            // Specifies that the Issue entity has a field named 'project' that maps back to
+            // this entity
             mappedBy = "project",
             // Specifies that operations on Project should cascade to Issue
             cascade = CascadeType.ALL,
             // If an Issue is removed from this list, delete it from the database
-            orphanRemoval = true
-    )
+            orphanRemoval = true)
     private List<Issue> issues;
 
     // Default constructor required by JPA
@@ -108,6 +128,42 @@ public class Project {
         this.description = description;
     }
 
+    // Getter for status
+    // Returns the status of the project
+    public String getStatus() {
+        return status;
+    }
+
+    // Setter for status
+    // Sets the status of the project
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    // Getter for startDate
+    // Returns the start date of the project
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    // Setter for startDate
+    // Sets the start date of the project
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    // Getter for endDate
+    // Returns the end date of the project
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    // Setter for endDate
+    // Sets the end date of the project
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
     // Getter for createdBy
     // Returns the user who created the project
     public User getCreatedBy() {
@@ -154,6 +210,18 @@ public class Project {
     // Sets the list of project issues
     public void setIssues(List<Issue> issues) {
         this.issues = issues;
+    }
+
+    // Getter for owner
+    // Returns the user who owns the project
+    public User getOwner() {
+        return owner;
+    }
+
+    // Setter for owner
+    // Sets the user who owns the project
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
 }

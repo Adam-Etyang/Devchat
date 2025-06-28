@@ -27,12 +27,36 @@ public class Issue {
     private String description;
 
     @Column(nullable = false)
-    private String status;
+    private String type; // BUG, FEATURE, TASK, IMPROVEMENT
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private String priority; // LOW, MEDIUM, HIGH, CRITICAL
+
+    @Column(nullable = false)
+    private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
 
     @ManyToOne
     @JoinColumn(name = "assigned_to_id")
     private User assignedTo;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_id", nullable = false)
+    private User createdBy;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
