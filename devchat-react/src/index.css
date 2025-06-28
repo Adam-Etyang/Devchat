@@ -42,15 +42,6 @@ body {
     padding-top: 64px; /* Navbar height */
 }
 
-.page {
-    display: none;
-    min-height: 100%;
-}
-
-.page.active {
-    display: block;
-}
-
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -180,4 +171,4 @@ body {
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
-} 
+}

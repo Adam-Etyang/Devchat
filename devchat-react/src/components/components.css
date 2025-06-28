@@ -1,0 +1,120 @@
+/* Chat message bubble polish */
+.chat-message {
+  background: #23273a;
+  color: #fff;
+  border-radius: 14px;
+  padding: 14px 20px;
+  min-width: 120px;
+  max-width: 340px;
+  font-size: 17px;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.08);
+  position: relative;
+  word-break: break-word;
+}
+.chat-message.user {
+  background: #8B5CF6;
+  color: #fff;
+}
+
+/* Message action buttons */
+.msg-actions button,
+.snippet-actions button {
+  background: none;
+  border: none;
+  color: #b0b3c6;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  font-size: 16px;
+  outline: none;
+}
+.msg-actions button:hover,
+.snippet-actions button:hover {
+  background: #2d3146;
+  color: #fff;
+}
+.msg-actions button:focus,
+.snippet-actions button:focus {
+  background: #8B5CF6;
+  color: #fff;
+}
+
+/* Snippet sidebar */
+.snippet-card {
+  background: #181a20;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+  color: #fff;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.snippet-card .snippet-lang {
+  font-weight: 700;
+  font-size: 15px;
+  color: #8B5CF6;
+  margin-bottom: 4px;
+}
+.snippet-card pre {
+  background: none;
+  color: #b0b3c6;
+  font-size: 15px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+/* Sidebar layout polish */
+.sidebar {
+  background: #23273a;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  height: 100%;
+  min-width: 180px;
+  max-width: 400px;
+}
+
+/* Chat area fills viewport */
+.chat-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  height: 100vh;
+}
+
+/* Button styles */
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-small {
+  padding: 4px 12px;
+  font-size: 15px;
+}
+.btn-primary {
+  background: #8B5CF6;
+  color: #fff;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background: #7c3aed;
+}
+.btn-secondary {
+  background: #23273a;
+  color: #fff;
+  border: 1px solid #8B5CF6;
+}
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background: #181a20;
+  color: #8B5CF6;
+} 
