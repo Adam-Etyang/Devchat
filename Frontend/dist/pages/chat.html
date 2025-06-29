@@ -26,6 +26,7 @@
       padding: 20px;
     }
     .chat-header {
+      text-decoration: none;
       font-size: 24px;
       font-weight: bold;
       color: #c084fc;
@@ -43,7 +44,7 @@
       margin-bottom: 10px;
       display: flex;
       gap: 10px;
-      align-items: center;
+      align-items: flex-start;
     }
     .avatar {
       width: 40px;
@@ -56,10 +57,12 @@
       color: #fff;
       font-weight: bold;
       font-size: 18px;
+      flex-shrink: 0;
     }
     .msg-content {
       display: flex;
       flex-direction: column;
+      word-break: break-word;
     }
     .msg-user {
       font-weight: bold;
@@ -67,6 +70,7 @@
     .msg-time {
       font-size: 12px;
       color: #aaa;
+      margin-left: 6px;
     }
     .input-bar {
       margin-top: 10px;
@@ -74,7 +78,7 @@
       align-items: center;
       gap: 10px;
     }
-    .input-bar input {
+    .input-bar input[type="text"] {
       flex: 1;
       padding: 10px;
       border-radius: 10px;
@@ -82,13 +86,24 @@
       background-color: #1f1f1f;
       color: #fff;
     }
-    .input-bar button {
-      padding: 10px 15px;
-      background-color: #9333ea;
+    .icon-btn {
+      background-color: #1f1f1f;
       border: none;
       border-radius: 10px;
-      color: white;
+      padding: 10px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #c084fc;
+    }
+    .icon-btn:hover {
+      background-color: #2b2b2b;
+    }
+    .input-bar button.send-btn {
+      background-color: #9333ea;
+      color: white;
     }
     .sidebar {
       flex: 1;
@@ -98,10 +113,16 @@
       flex-direction: column;
     }
     .nav-item {
-      margin-bottom: 20px;
-      color: #e5e5e5;
-      font-size: 18px;
-      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      padding: 0.5rem 1rem; /* py-2 = 0.5rem, px-4 = 1rem */
+      border-radius: 0.5rem; /* rounded-lg */
+      color: #D1D5DB; /* text-gray-300 */
+      transition: all 0.2s ease-in-out;
+    }
+    .nav-item:hover {
+      background-color: rgba(124, 58, 237, 0.1); /* devpurple/10 */
+      color: #7C3AED; /* Replace with your actual "devpurple" color */
     }
     .users-list {
       margin-top: auto;
@@ -122,37 +143,51 @@
       font-size: 12px;
       border-radius: 5px;
     }
+    .shared-img {
+      max-width: 200px;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+    .file-link {
+      color: #c084fc;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="chat-section">
-      <div class="chat-header">Devchat</div>
+      <a href="dashboard.html" class="chat-header">Devchat</a>
       <div class="messages" id="messages">
         <div class="message">
           <div class="avatar">A</div>
           <div class="msg-content">
-            <div><span class="msg-user">Alex</span> <span class="msg-time">1m ago</span></div>
+            <div><span class="msg-user">Alex</span><span class="msg-time">1m ago</span></div>
             <div>Pushed a fix for the login bug 🚀</div>
           </div>
         </div>
         <div class="message">
           <div class="avatar" style="background-color:#c084fc;">D</div>
           <div class="msg-content">
-            <div><span class="msg-user">DemoUser</span> <span class="msg-time">1m ago</span></div>
+            <div><span class="msg-user">DemoUser</span><span class="msg-time">1m ago</span></div>
             <div>Great! Reviewing now.</div>
           </div>
         </div>
       </div>
       <div class="input-bar">
+        <label for="imageInput" class="icon-btn" title="Share image">🖼️</label>
+        <input type="file" id="imageInput" accept="image/*" style="display:none" />
+        <label for="fileInput" class="icon-btn" title="Share file">📎</label>
+        <input type="file" id="fileInput" style="display:none" />
         <input type="text" id="chatInput" placeholder="Type your message..." />
-        <button onclick="sendMessage()">Send</button>
+        <button class="icon-btn send-btn" onclick="sendMessage()">➡️</button>
       </div>
     </div>
     <div class="sidebar">
-      <div class="nav-item">Projects</div>
-      <div class="nav-item">Issues</div>
-      <div class="nav-item">Messages</div>
+      <a href="project/project.html" class="nav-item">Projects</a>
+      <a href="issue.html" class="nav-item">Issues</a>
+      <a href="Notifications.html" class="nav-item">Notifications</a>
+      <a href="settings.html" class="nav-item">Settings</a>
       <div class="users-list">
         <div class="user-entry">
           <div class="avatar" style="background-color:#6b7280;">A</div>
@@ -169,27 +204,65 @@
       </div>
     </div>
   </div>
-  <!-- This is the JS part directing the messages to go to the Chat -->
-  <script>
-    function sendMessage() {
-      const input = document.getElementById("chatInput");
-      const text = input.value.trim();
-      if (text === "") return;
+<script>
+  function appendMessage(innerHtml) {
+    const messages = document.getElementById('messages');
+    const message = document.createElement('div');
+    message.className = 'message';
+    message.innerHTML = innerHtml;
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+  }
 
-      const messages = document.getElementById("messages");
-      const message = document.createElement("div");
-      message.className = "message";
-      message.innerHTML = `
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (text === '') return;
+
+    const msgHtml = `
+      <div class="avatar" style="background-color:#c084fc;">Y</div>
+      <div class="msg-content">
+        <div><span class="msg-user">You</span><span class="msg-time">Just now</span></div>
+        <div>${text}</div>
+      </div>`;
+    appendMessage(msgHtml);
+    input.value = '';
+  }
+
+  document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const imgSrc = ev.target.result;
+      const imgHtml = `
         <div class="avatar" style="background-color:#c084fc;">Y</div>
         <div class="msg-content">
-          <div><span class="msg-user">You</span> <span class="msg-time">Just now</span></div>
-          <div>${text}</div>
+          <div><span class="msg-user">You</span><span class="msg-time">Just now</span></div>
+          <img src="${imgSrc}" alt="shared image" class="shared-img" />
         </div>`;
+      appendMessage(imgHtml);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
 
-      messages.appendChild(message);
-      input.value = "";
-      messages.scrollTop = messages.scrollHeight;
-    }
-  </script>
+  document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    const fileHtml = `
+      <div class="avatar" style="background-color:#c084fc;">Y</div>
+      <div class="msg-content">
+        <div><span class="msg-user">You</span><span class="msg-time">Just now</span></div>
+        <a href="${url}" download="${file.name}" class="file-link">📄 ${file.name}</a>
+      </div>`;
+    appendMessage(fileHtml);
+    e.target.value = '';
+  });
+</script>
 </body>
 </html>
