@@ -1,0 +1,124 @@
+package com.Devchat.projectmodule.Entity;
+
+import jakarta.persistence.*;//Contains JPA annotations for database mapping
+import java.time.LocalDateTime;//Java's modern date/time class
+
+@Entity //Tells Spring "this class represents a database table"
+@Table(name = "messages")// Explicitly names the database table "messages"
+public class Message {
+
+    @Id//Marks this as the primary key (unique identifier)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    /*@GeneratedValue: Auto-generates the ID when you save
+      GenerationType.IDENTITY: Uses database auto-increment */
+    private Long id;
+
+    @Column(nullable = false)//This field cannot be null in the database
+    private String sender;
+
+    @Column(nullable = false)
+    private String receiver;
+
+    @Column(nullable = false, length = 1000)//length = 1000: Limits content to 1000 characters (prevents huge messages)
+    private String content;
+
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
+
+    @Column(name = "is_read", nullable = false)//Database column will be named "is_read" (snake_case)
+    private boolean isRead = false;//= false: Default value when creating new messages
+
+    // Default constructor (required by JPA)
+    public Message() {
+        this.timestamp = LocalDateTime.now();//Automatically sets when message is created
+    }
+
+    // Constructor with all fields except id (for creating new messages)
+    public Message(String sender, String receiver, String content) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+        this.timestamp = LocalDateTime.now();
+        this.isRead = false;
+    }
+
+    // Constructor with all fields including id (for database retrieval)
+    public Message(Long id, String sender, String receiver, String content, LocalDateTime timestamp, boolean isRead) {
+        this.id = id;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
+        this.timestamp = timestamp;
+        this.isRead = isRead;
+    }
+
+    // Getters(Allow other classes to read the fields)
+    public Long getId() {
+        return id;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    //Special getter for boolean (not getIsRead())
+    public boolean isRead() {
+        return isRead;
+    }
+
+    // Setters(Allow other classes to modify the fields)
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+
+
+    /*@Override: Tells Java "I'm replacing the default toString() method"
+      String concatenation: Builds a readable string with all the important fields
+      Format: FieldName=value format makes it easy to read
+      Makes debugging much easier
+      Helps with logging
+      */
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", sender='" + sender + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", content='" + content + '\'' +
+                ", timestamp=" + timestamp +
+                ", isRead=" + isRead +
+                '}';
+    }
+}
