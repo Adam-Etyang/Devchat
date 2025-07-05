@@ -5,8 +5,6 @@ package com.Devchat.DTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 
 //for timestamp handling
 import java.time.LocalDateTime;

@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 // For handling collections of projects
 import java.util.List;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * REST Controller for handling Project-related HTTP requests.
@@ -100,6 +98,19 @@ public class ProjectController {
             List<ProjectDTO> projects = projectService.getAllProjects();
             return ResponseEntity.ok(projects);
         }
+    }
+
+    /**
+     * Searches projects by name (case-insensitive).
+     *
+     * @param name The name to search for
+     * @return ResponseEntity containing a list of matching projects
+     */
+    @GetMapping("/search") // Handles GET requests for search
+    public ResponseEntity<List<ProjectDTO>> searchProjectsByName(
+            @RequestParam String name) {
+        List<ProjectDTO> projects = projectService.searchProjectsByName(name);
+        return ResponseEntity.ok(projects);
     }
 
     /**

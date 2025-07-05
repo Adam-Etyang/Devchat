@@ -31,6 +31,49 @@ export async function createProject(projectData) {
   return newProject;
 }
 
+// Get a project by ID
+export async function getProjectById(projectId) {
+  const response = await fetch(`http://localhost:8080/api/projects/${projectId}`);
+  if (!response.ok) throw new Error('Failed to fetch project');
+  return response.json();
+}
+
+// Update a project
+export async function updateProject(projectId, projectData) {
+  const response = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(projectData)
+  });
+  if (!response.ok) throw new Error('Failed to update project');
+  const updatedProject = await response.json();
+  
+  // Trigger immediate update
+  realtimeManager.triggerUpdate('projects', { action: 'updated', project: updatedProject });
+  
+  return updatedProject;
+}
+
+// Delete a project
+export async function deleteProject(projectId) {
+  const response = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) throw new Error('Failed to delete project');
+  
+  // Trigger immediate update
+  realtimeManager.triggerUpdate('projects', { action: 'deleted', projectId: projectId });
+  
+  return true;
+}
+
+// Search projects by name
+export async function searchProjectsByName(name) {
+  const response = await fetch(`http://localhost:8080/api/projects/search?name=${encodeURIComponent(name)}`);
+  if (!response.ok) throw new Error('Failed to search projects');
+  return response.json();
+}
+
 // Fetch all users for manager dropdown
 async function fetchAllUsers() {
   const res = await fetch('http://localhost:8080/api/auth/all');
@@ -52,6 +95,71 @@ function closeCreateModal() {
   if (modal) {
     modal.classList.add('hidden');
     document.getElementById('create-project-form').reset();
+  }
+}
+
+// Open edit modal
+function openEditModal(projectId) {
+  const modal = document.getElementById('edit-project-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    loadProjectForEdit(projectId);
+  }
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('edit-project-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.getElementById('edit-project-form').reset();
+  }
+}
+
+// Load project data for editing
+async function loadProjectForEdit(projectId) {
+  try {
+    const project = await getProjectById(projectId);
+    const users = await fetchAllUsers();
+    
+    // Populate form fields
+    const form = document.getElementById('edit-project-form');
+    if (form) {
+      form.querySelector('[name="name"]').value = project.name || '';
+      form.querySelector('[name="description"]').value = project.description || '';
+      form.querySelector('[name="status"]').value = project.status || '';
+      form.querySelector('[name="managerId"]').value = project.managerId || '';
+      
+      // Format dates for datetime-local input
+      if (project.startDate) {
+        const startDate = new Date(project.startDate);
+        form.querySelector('[name="startDate"]').value = startDate.toISOString().slice(0, 16);
+      }
+      if (project.endDate) {
+        const endDate = new Date(project.endDate);
+        form.querySelector('[name="endDate"]').value = endDate.toISOString().slice(0, 16);
+      }
+      
+      // Store project ID for form submission
+      form.setAttribute('data-project-id', projectId);
+    }
+    
+    // Populate manager dropdown
+    const managerSelect = form.querySelector('[name="managerId"]');
+    if (managerSelect) {
+      managerSelect.innerHTML = '<option value="">Select manager</option>';
+      users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.username;
+        managerSelect.appendChild(option);
+      });
+      // Set the current manager
+      managerSelect.value = project.managerId || '';
+    }
+    
+  } catch (error) {
+    console.error('Error loading project for edit:', error);
+    showNotification('Error loading project data', 'error');
   }
 }
 
@@ -173,15 +281,59 @@ function createProjectCard(project) {
     
     <div class="flex items-center justify-between text-xs text-gray-400">
       <span>Created ${formatDate(project.createdAt)}</span>
-      <span>Manager: ${project.createdById || 'Unknown'}</span>
+      <span>Manager: ${project.managerId || 'Unknown'}</span>
     </div>
     
     <div class="flex gap-2 mt-2">
-      <button class="flex-1 bg-devpurple text-black rounded px-3 py-2 text-sm font-semibold hover:bg-devpurplelight transition">View Details</button>
-      <button class="bg-[#18181b] text-devpurple border border-devpurple rounded px-3 py-2 text-sm font-semibold hover:bg-devpurple/10 transition">Edit</button>
+      <button class="view-project-btn flex-1 bg-devpurple text-black rounded px-3 py-2 text-sm font-semibold hover:bg-devpurplelight transition">View Details</button>
+      <button class="edit-project-btn bg-[#18181b] text-devpurple border border-devpurple rounded px-3 py-2 text-sm font-semibold hover:bg-devpurple/10 transition">Edit</button>
+      <button class="delete-project-btn bg-red-600 text-white border border-red-600 rounded px-3 py-2 text-sm font-semibold hover:bg-red-700 transition">Delete</button>
     </div>
   `;
+  
+  // Add event listeners
+  const viewBtn = card.querySelector('.view-project-btn');
+  const editBtn = card.querySelector('.edit-project-btn');
+  const deleteBtn = card.querySelector('.delete-project-btn');
+  
+  if (viewBtn) {
+    viewBtn.addEventListener('click', () => viewProjectDetails(project.id));
+  }
+  
+  if (editBtn) {
+    editBtn.addEventListener('click', () => openEditModal(project.id));
+  }
+  
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => confirmDeleteProject(project.id, project.name));
+  }
+  
   return card;
+}
+
+// View project details
+function viewProjectDetails(projectId) {
+  // Navigate to project details page or open modal
+  window.location.href = `project-details.html?id=${projectId}`;
+}
+
+// Confirm project deletion
+function confirmDeleteProject(projectId, projectName) {
+  if (confirm(`Are you sure you want to delete "${projectName}"? This action cannot be undone.`)) {
+    deleteProject(projectId)
+      .then(() => {
+        showNotification('Project deleted successfully!', 'success');
+        // Remove the card from the DOM
+        const projectCard = document.querySelector(`[data-project-id="${projectId}"]`);
+        if (projectCard) {
+          projectCard.remove();
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting project:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      });
+  }
 }
 
 // Create a recent project item for dashboard
@@ -264,6 +416,7 @@ function initializeRealtimeUpdates() {
       // Refresh the entire list
       loadProjects();
       loadRecentProjects();
+      showNotification('Project updated successfully!', 'success');
     } else if (data.action === 'deleted') {
       // Remove project from list
       const projectElement = document.querySelector(`[data-project-id="${data.projectId}"]`);
@@ -384,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelProjectBtn.addEventListener('click', closeCreateModal);
   }
   
-  // Set up form submission
+  // Set up form submission for create
   if (createProjectForm) {
     createProjectForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -396,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         status: formData.get('status'),
         startDate: formData.get('startDate'),
         endDate: formData.get('endDate') || null,
-        managerId: parseInt(formData.get('managerId'))
+        managerId: formData.get('managerId')
       };
       
       try {
@@ -410,12 +563,100 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // Set up edit modal handlers
+  const closeEditModalBtn = document.getElementById('close-edit-project-modal');
+  const cancelEditProjectBtn = document.getElementById('cancel-edit-project');
+  const editProjectForm = document.getElementById('edit-project-form');
+  
+  if (closeEditModalBtn) {
+    closeEditModalBtn.addEventListener('click', closeEditModal);
+  }
+  
+  if (cancelEditProjectBtn) {
+    cancelEditProjectBtn.addEventListener('click', closeEditModal);
+  }
+  
+  // Set up form submission for edit
+  if (editProjectForm) {
+    editProjectForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const projectId = editProjectForm.getAttribute('data-project-id');
+      const formData = new FormData(editProjectForm);
+      const projectData = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        status: formData.get('status'),
+        startDate: formData.get('startDate'),
+        endDate: formData.get('endDate') || null,
+        managerId: formData.get('managerId')
+      };
+      
+      try {
+        await updateProject(projectId, projectData);
+        closeEditModal();
+        showNotification('Project updated successfully!', 'success');
+        // Refresh the projects list
+        loadProjects();
+      } catch (error) {
+        console.error('Error updating project:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    });
+  }
+  
   // Set up status filter if it exists
   const statusFilter = document.getElementById('status-filter');
   if (statusFilter) {
     statusFilter.addEventListener('change', (e) => {
-      // TODO: Implement filtering
-      console.log('Filter by status:', e.target.value);
+      const selectedStatus = e.target.value;
+      if (selectedStatus) {
+        // Filter projects by status
+        filterProjectsByStatus(selectedStatus);
+      } else {
+        // Show all projects
+        loadProjects();
+      }
+    });
+  }
+  
+  // Set up search functionality if it exists
+  const searchInput = document.getElementById('project-search');
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = e.target.value.trim();
+        if (searchTerm) {
+          searchProjects(searchTerm);
+        } else {
+          loadProjects();
+        }
+      }, 300);
     });
   }
 });
+
+// Filter projects by status
+async function filterProjectsByStatus(status) {
+  try {
+    const projects = await fetchAllProjects();
+    const filteredProjects = projects.filter(project => project.status === status);
+    updateProjectsGrid(filteredProjects);
+  } catch (error) {
+    console.error('Error filtering projects:', error);
+    showNotification('Error filtering projects', 'error');
+  }
+}
+
+// Search projects by name
+async function searchProjects(searchTerm) {
+  try {
+    const projects = await searchProjectsByName(searchTerm);
+    updateProjectsGrid(projects);
+  } catch (error) {
+    console.error('Error searching projects:', error);
+    showNotification('Error searching projects', 'error');
+  }
+}
