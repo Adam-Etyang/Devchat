@@ -1,13 +1,13 @@
-package com.Devchat.projectmodule.controller;
+package com.Devchat.Controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
-import com.Devchat.projectmodule.dto.MessageDTO;
-import com.Devchat.projectmodule.dto.CreateMessageRequest;
-import com.Devchat.projectmodule.services.MessageService;
+import com.Devchat.DTO.MessageDTO;
+import com.Devchat.DTO.CreateMessageRequest;
+import com.Devchat.Service.MessageService;
 
 @RestController // Marks this class as a REST controller
 @RequestMapping("/api/messages") // Base URL for all endpoints in this controller

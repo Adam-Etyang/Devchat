@@ -1,6 +1,6 @@
-package com.Devchat.projectmodule.repositories;
+package com.Devchat.repository;
 
-import com.Devchat.projectmodule.Entity.Message;
+import com.Devchat.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;//for return types
 
@@ -16,6 +16,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     // Find all messages in a conversation (regardless of who sent/received)
     List<Message> findBySenderAndReceiverOrReceiverAndSender(
-            String sender1, String receiver1, String sender2, String receiver2
-    );
+            String sender1, String receiver1, String sender2, String receiver2);
 }

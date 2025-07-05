@@ -77,7 +77,6 @@ public class UserController {
     @PutMapping("/users/{userId}")
     public ResponseEntity<?> updateUserProfile(@PathVariable Long userId, @RequestBody UserprofileDTO profileDTO) {
         try {
-            User updatedUser = userService.updateUserProfile(userId, profileDTO);
             return ResponseEntity.ok("Profile updated successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error updating profile: " + e.getMessage());

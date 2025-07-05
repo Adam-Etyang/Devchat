@@ -1,36 +1,39 @@
-package com.Devchat.projectmodule.Entity;
+package com.Devchat.entity;
 
 import jakarta.persistence.*;//Contains JPA annotations for database mapping
 import java.time.LocalDateTime;//Java's modern date/time class
 
-@Entity //Tells Spring "this class represents a database table"
-@Table(name = "messages")// Explicitly names the database table "messages"
+@Entity // Tells Spring "this class represents a database table"
+@Table(name = "messages") // Explicitly names the database table "messages"
 public class Message {
 
-    @Id//Marks this as the primary key (unique identifier)
+    @Id // Marks this as the primary key (unique identifier)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    /*@GeneratedValue: Auto-generates the ID when you save
-      GenerationType.IDENTITY: Uses database auto-increment */
+    /*
+     * @GeneratedValue: Auto-generates the ID when you save
+     * GenerationType.IDENTITY: Uses database auto-increment
+     */
     private Long id;
 
-    @Column(nullable = false)//This field cannot be null in the database
+    @Column(nullable = false) // This field cannot be null in the database
     private String sender;
 
     @Column(nullable = false)
     private String receiver;
 
-    @Column(nullable = false, length = 1000)//length = 1000: Limits content to 1000 characters (prevents huge messages)
+    @Column(nullable = false, length = 1000) // length = 1000: Limits content to 1000 characters (prevents huge
+                                             // messages)
     private String content;
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    @Column(name = "is_read", nullable = false)//Database column will be named "is_read" (snake_case)
-    private boolean isRead = false;//= false: Default value when creating new messages
+    @Column(name = "is_read", nullable = false) // Database column will be named "is_read" (snake_case)
+    private boolean isRead = false;// = false: Default value when creating new messages
 
     // Default constructor (required by JPA)
     public Message() {
-        this.timestamp = LocalDateTime.now();//Automatically sets when message is created
+        this.timestamp = LocalDateTime.now();// Automatically sets when message is created
     }
 
     // Constructor with all fields except id (for creating new messages)
@@ -73,7 +76,7 @@ public class Message {
         return timestamp;
     }
 
-    //Special getter for boolean (not getIsRead())
+    // Special getter for boolean (not getIsRead())
     public boolean isRead() {
         return isRead;
     }
@@ -103,13 +106,13 @@ public class Message {
         isRead = read;
     }
 
-
-    /*@Override: Tells Java "I'm replacing the default toString() method"
-      String concatenation: Builds a readable string with all the important fields
-      Format: FieldName=value format makes it easy to read
-      Makes debugging much easier
-      Helps with logging
-      */
+    /*
+     * @Override: Tells Java "I'm replacing the default toString() method"
+     * String concatenation: Builds a readable string with all the important fields
+     * Format: FieldName=value format makes it easy to read
+     * Makes debugging much easier
+     * Helps with logging
+     */
     @Override
     public String toString() {
         return "Message{" +

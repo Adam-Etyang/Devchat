@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule.services;
+package com.Devchat.Service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.Devchat.projectmodule.dto.MessageDTO;
-import com.Devchat.projectmodule.dto.CreateMessageRequest;
-import com.Devchat.projectmodule.Entity.Message;
-import com.Devchat.projectmodule.repositories.MessageRepository;
+import com.Devchat.DTO.MessageDTO;
+import com.Devchat.DTO.CreateMessageRequest;
+import com.Devchat.entity.Message;
+import com.Devchat.repository.MessageRepository;
 
 @Service // Marks this class as a Spring service component
 public class MessageServiceImpl implements MessageService {
@@ -23,18 +23,17 @@ public class MessageServiceImpl implements MessageService {
 
     // Send a new message
     /*
-    * Creates a new Message entity from the request
-      Saves it to the database
-      Converts the saved entity to a DTO
-    * */
+     * Creates a new Message entity from the request
+     * Saves it to the database
+     * Converts the saved entity to a DTO
+     */
     @Override
     public MessageDTO sendMessage(CreateMessageRequest request) {
         // Create a new Message entity from the request DTO
         Message message = new Message(
                 request.getSender(),
                 request.getReceiver(),
-                request.getContent()
-        );
+                request.getContent());
         // Save the message to the database
         Message saved = messageRepository.save(message);
         // Convert the saved entity to a DTO and return
@@ -43,15 +42,15 @@ public class MessageServiceImpl implements MessageService {
 
     // Get all messages between two users (conversation)
     /*
-    * Gets all messages between two users, regardless of direction
-      Converts each Message to a DTO
-    * */
+     * Gets all messages between two users, regardless of direction
+     * Converts each Message to a DTO
+     */
     @Override
     public List<MessageDTO> getMessagesBetweenUsers(String user1, String user2) {
-        // Find messages where (sender=user1 AND receiver=user2) OR (sender=user2 AND receiver=user1)
+        // Find messages where (sender=user1 AND receiver=user2) OR (sender=user2 AND
+        // receiver=user1)
         List<Message> messages = messageRepository.findBySenderAndReceiverOrReceiverAndSender(
-                user1, user2, user1, user2
-        );
+                user1, user2, user1, user2);
         // Convert each Message entity to a DTO
         return messages.stream().map(this::toDTO).collect(Collectors.toList());
     }
@@ -94,7 +93,6 @@ public class MessageServiceImpl implements MessageService {
                 message.getReceiver(),
                 message.getContent(),
                 message.getTimestamp(),
-                message.isRead()
-        );
+                message.isRead());
     }
 }

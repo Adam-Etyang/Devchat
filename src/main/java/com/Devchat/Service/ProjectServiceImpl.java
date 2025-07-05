@@ -103,10 +103,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProject(Long projectId) {
         // Check if project exists and get its name before deletion
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
-
-        String projectName = project.getName();
 
         // Delete the project
         projectRepository.deleteById(projectId);
