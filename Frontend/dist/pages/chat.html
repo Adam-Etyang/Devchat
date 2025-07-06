@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.5/sockjs.min.js"></script>
+  
   <title>DevChat Room</title>
 <style>
   * {
@@ -275,65 +278,7 @@
       </div>
     </div>
   </div>
-<script>
-  function appendMessage(innerHtml) {
-    const messages = document.getElementById('messages');
-    const message = document.createElement('div');
-    message.className = 'message';
-    message.innerHTML = innerHtml;
-    messages.appendChild(message);
-    messages.scrollTop = messages.scrollHeight;
-  }
 
-  function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (text === '') return;
-
-    const msgHtml = `
-      <div class="avatar" style="background-color:#c084fc;">Y</div>
-      <div class="msg-content">
-        <div><span class="msg-user">You</span><span class="msg-time">Just now</span></div>
-        <div>${text}</div>
-      </div>`;
-    appendMessage(msgHtml);
-    input.value = '';
-  }
-
-  document.getElementById('imageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return;
-
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const imgSrc = ev.target.result;
-      const imgHtml = `
-        <div class="avatar" style="background-color:#c084fc;">Y</div>
-        <div class="msg-content">
-          <div><span class="msg-user">You</span><span class="msg-time">Just now</span></div>
-          <img src="${imgSrc}" alt="shared image" class="shared-img" />
-        </div>`;
-      appendMessage(imgHtml);
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  });
-
-  document.getElementById('fileInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const url = URL.createObjectURL(file);
-    const fileHtml = `
-      <div class="avatar" style="background-color:#c084fc;">Y</div>
-      <div class="msg-content">
-        <div><span class="msg-user">You</span><span class="msg-time">Just now</span></div>
-        <a href="${url}" download="${file.name}" class="file-link">📄 ${file.name}</a>
-      </div>`;
-    appendMessage(fileHtml);
-    e.target.value = '';
-  });
-</script>
+<script src = "../js/chat.js"></script>
 </body>
 </html>

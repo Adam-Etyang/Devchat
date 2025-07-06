@@ -1,4 +1,4 @@
-package com.Devchat.projectmodule;
+package com.Devchat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
