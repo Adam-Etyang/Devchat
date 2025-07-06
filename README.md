@@ -55,6 +55,7 @@ Devchat/
 │   │   │   ├── Controller/             # REST API controllers
 │   │   │   │   ├── Hello.java
 │   │   │   │   ├── IssueController.java
+│   │   │   │   ├── MessageController.java
 │   │   │   │   ├── ProjectController.java
 │   │   │   │   ├── RoleController.java
 │   │   │   │   ├── UpdateController.java
@@ -72,6 +73,7 @@ Devchat/
 │   │   │   │   └── UserprofileDTO.java
 │   │   │   ├── entity/                 # JPA entities
 │   │   │   │   ├── Issue.java
+│   │   │   │   ├── Message.java
 │   │   │   │   ├── Project.java
 │   │   │   │   ├── ProjectMember.java
 │   │   │   │   ├── Role.java
@@ -86,6 +88,7 @@ Devchat/
 │   │   │   │   └── RoleMapper.java
 │   │   │   ├── repository/             # Data access layer
 │   │   │   │   ├── IssueRepository.java
+│   │   │   │   ├── MessageRepository.java
 │   │   │   │   ├── ProjectRepository.java
 │   │   │   │   ├── RoleRepository.java
 │   │   │   │   ├── UpdateRepository.java
@@ -94,6 +97,8 @@ Devchat/
 │   │   │   │   ├── Dataloader.java
 │   │   │   │   ├── IssueService.java
 │   │   │   │   ├── IssueServiceImpl.java
+│   │   │   │   ├── MessageService.java
+│   │   │   │   ├── MessageServiceImpl.java
 │   │   │   │   ├── ProjectService.java
 │   │   │   │   ├── ProjectServiceImpl.java
 │   │   │   │   ├── RoleService.java
@@ -122,6 +127,7 @@ Devchat/
 │       │   ├── settings.html
 │       │   └── signup.html
 │       └── js/                         # JavaScript modules
+│           ├── chat.js
 │           ├── dashboard.js
 │           ├── issue.js
 │           ├── project.js
@@ -361,6 +367,7 @@ public enum ProjectStatus {
 - **Users**: User accounts and profiles
 - **Projects**: Development projects with status tracking
 - **Issues**: Project issues with priority and assignment
+- **Messages**: Real-time chat messages with persistence
 - **Roles**: User roles and permissions
 - **Updates**: Real-time activity tracking
 
@@ -369,6 +376,7 @@ public enum ProjectStatus {
 - Users can manage multiple projects
 - Projects can have multiple issues
 - Issues can be assigned to users
+- Users can send/receive messages
 - Real-time updates track all activities
 
 ## Security Features
@@ -402,6 +410,12 @@ public enum ProjectStatus {
 - `GET /api/issues/{id}` - Get issue by ID
 - `PUT /api/issues/{id}` - Update issue
 - `DELETE /api/issues/{id}` - Delete issue
+
+### Messaging
+
+- `GET /api/messages/public/recent` - Get recent public messages
+- `GET /api/messages/conversation` - Get conversation between users
+- `PUT /api/messages/{id}/read` - Mark message as read
 
 ### User Management
 
@@ -438,5 +452,234 @@ mvn jacoco:report
 - **WebSocket Integration**: Efficient bidirectional communication
 - **Event-driven Architecture**: Decoupled real-time event handling
 
+## 💬 WebSocket Messaging Architecture
 
+Devchat implements a comprehensive WebSocket-based messaging system for real-time communication between users. The system combines WebSocket for real-time messaging with REST APIs for initial data loading and persistence.
 
+### Architecture Overview
+
+```
+┌─────────────────┐    WebSocket     ┌─────────────────┐
+│   Frontend      │ ◄──────────────► │   Backend       │
+│   (Browser)     │                  │   (Spring Boot) │
+└─────────────────┘                  └─────────────────┘
+         │                                     │
+         │ REST API                            │ Database
+         ▼                                     ▼
+┌─────────────────┐                  ┌─────────────────┐
+│   Static Files  │                  │   PostgreSQL    │
+│   (HTML/CSS/JS) │                  │   (Messages)    │
+└─────────────────┘                  └─────────────────┘
+```
+
+### WebSocket Endpoints
+
+#### Connection
+
+- **WebSocket URL**: `ws://localhost:8080/chat-websocket`
+- **Protocol**: STOMP over SockJS
+- **Authentication**: Session-based (username stored in WebSocket session)
+
+#### Message Mappings
+
+| Endpoint                        | Purpose                      | Payload                   | Response                          |
+| ------------------------------- | ---------------------------- | ------------------------- | --------------------------------- |
+| `/app/chat.sendMessage`         | Send public chat message     | `Message` object          | Broadcast to `/topic/public`      |
+| `/app/chat.addUser`             | User join/leave notification | `Message` object          | Broadcast to `/topic/public`      |
+| `/app/chat.privateMessage`      | Send private message         | `Message` object          | Send to specific user             |
+| `/app/chat.typing`              | Typing indicator             | `Message` object          | Broadcast to `/topic/typing`      |
+| `/app/chat.getConversation`     | Get conversation history     | `String[]` (user1, user2) | Send to `/topic/conversation`     |
+| `/app/chat.getSentMessages`     | Get user's sent messages     | `String` (sender)         | Send to `/topic/sentMessages`     |
+| `/app/chat.getReceivedMessages` | Get user's received messages | `String` (receiver)       | Send to `/topic/receivedMessages` |
+
+#### Topics (Subscriptions)
+
+| Topic                     | Purpose              | Description                                  |
+| ------------------------- | -------------------- | -------------------------------------------- |
+| `/topic/public`           | Public messages      | All chat messages and user join/leave events |
+| `/topic/private`          | Private messages     | Direct messages between users                |
+| `/topic/typing`           | Typing indicators    | Real-time typing status                      |
+| `/topic/conversation`     | Conversation history | Historical messages between users            |
+| `/topic/sentMessages`     | Sent messages        | User's sent message history                  |
+| `/topic/receivedMessages` | Received messages    | User's received message history              |
+
+### Message Entity Structure
+
+```java
+@Entity
+@Table(name = "messages")
+public class Message {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String sender;
+
+    @Column(nullable = false)
+    private String receiver;
+
+    @Column(nullable = false, length = 1000)
+    private String content;
+
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
+
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MessageType type = MessageType.CHAT;
+
+    public enum MessageType {
+        CHAT,    // Regular chat message
+        JOIN,    // User joined notification
+        LEAVE    // User left notification
+    }
+}
+```
+
+### Frontend Integration
+
+#### WebSocket Connection Setup
+
+```javascript
+// Connect to WebSocket
+const socket = new SockJS("http://localhost:8080/chat-websocket");
+const stompClient = Stomp.over(socket);
+
+stompClient.connect({}, function (frame) {
+  console.log("Connected to WebSocket:", frame);
+
+  // Subscribe to public messages
+  stompClient.subscribe("/topic/public", function (message) {
+    const chatMessage = JSON.parse(message.body);
+    showMessage(chatMessage);
+  });
+
+  // Subscribe to private messages
+  stompClient.subscribe("/user/topic/private", function (message) {
+    const chatMessage = JSON.parse(message.body);
+    showPrivateMessage(chatMessage);
+  });
+});
+```
+
+#### Sending Messages
+
+```javascript
+// Send public message
+function sendMessage() {
+  const chatMessage = {
+    sender: currentUsername,
+    receiver: "public",
+    content: messageText,
+    type: "CHAT",
+    timestamp: new Date().toISOString(),
+  };
+
+  stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+}
+
+// Send private message
+function sendPrivateMessage(receiver, content) {
+  const chatMessage = {
+    sender: currentUsername,
+    receiver: receiver,
+    content: content,
+    type: "CHAT",
+    timestamp: new Date().toISOString(),
+  };
+
+  stompClient.send("/app/chat.privateMessage", {}, JSON.stringify(chatMessage));
+}
+```
+
+### REST API Integration
+
+The WebSocket system is complemented by REST endpoints for initial data loading and persistence:
+
+#### Message REST Endpoints
+
+| Method | Endpoint                      | Purpose                        |
+| ------ | ----------------------------- | ------------------------------ |
+| `GET`  | `/api/messages/public/recent` | Get recent public messages     |
+| `GET`  | `/api/messages/conversation`  | Get conversation between users |
+| `PUT`  | `/api/messages/{id}/read`     | Mark message as read           |
+
+### Message Flow
+
+1. **User Joins Chat**
+
+   ```
+   Frontend → /app/chat.addUser → Backend → Database → /topic/public
+   ```
+
+2. **Sending Message**
+
+   ```
+   Frontend → /app/chat.sendMessage → Backend → Database → /topic/public
+   ```
+
+3. **Private Message**
+
+   ```
+   Frontend → /app/chat.privateMessage → Backend → Database → /topic/private (specific user)
+   ```
+
+4. **Loading History**
+   ```
+   Frontend → GET /api/messages/public/recent → Backend → Database → Frontend
+   ```
+
+### Error Handling
+
+- **Connection Failures**: Automatic fallback to local chat mode
+- **Database Errors**: Graceful degradation with error logging
+- **Invalid Messages**: Validation and rejection with error responses
+- **User Disconnection**: Automatic cleanup of user sessions
+
+### Performance Features
+
+- **Message Persistence**: All messages saved to database for history
+- **Efficient Broadcasting**: Messages sent only to relevant subscribers
+- **Connection Management**: Automatic session cleanup and reconnection
+- **Message Queuing**: Handles high message volumes efficiently
+
+### Security Considerations
+
+- **Session Management**: Username stored in WebSocket session attributes
+- **Input Validation**: Message content validation and sanitization
+- **CORS Configuration**: Proper cross-origin setup for WebSocket connections
+- **Rate Limiting**: Protection against message spam
+
+### Usage Examples
+
+#### Basic Chat Implementation
+
+```html
+<!-- chat.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.5/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  </head>
+  <body>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script src="chat.js"></script>
+  </body>
+</html>
+```
+
+#### Advanced Features
+
+- **File Sharing**: Support for image and file uploads
+- **Typing Indicators**: Real-time typing status
+- **Message Read Status**: Track message read receipts
+- **User Presence**: Online/offline status tracking
+- **Message Search**: Historical message retrieval
