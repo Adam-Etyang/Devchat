@@ -31,6 +31,10 @@ public class Message {
     @Column(name = "is_read", nullable = false) // Database column will be named "is_read" (snake_case)
     private boolean isRead = false;// = false: Default value when creating new messages
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MessageType type = MessageType.CHAT; // Default to CHAT type
+
     // Default constructor (required by JPA)
     public Message() {
         this.timestamp = LocalDateTime.now();// Automatically sets when message is created
@@ -43,16 +47,19 @@ public class Message {
         this.content = content;
         this.timestamp = LocalDateTime.now();
         this.isRead = false;
+        this.type = MessageType.CHAT;
     }
 
     // Constructor with all fields including id (for database retrieval)
-    public Message(Long id, String sender, String receiver, String content, LocalDateTime timestamp, boolean isRead) {
+    public Message(Long id, String sender, String receiver, String content, LocalDateTime timestamp, boolean isRead,
+            MessageType type) {
         this.id = id;
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
         this.timestamp = timestamp;
         this.isRead = isRead;
+        this.type = type;
     }
 
     // Getters(Allow other classes to read the fields)
@@ -104,6 +111,21 @@ public class Message {
 
     public void setRead(boolean read) {
         isRead = read;
+    }
+
+    public MessageType getType() {
+        return type;
+    }
+
+    public void setType(MessageType type) {
+        this.type = type;
+    }
+
+    // enum for the different types of messages
+    public enum MessageType {
+        CHAT,
+        JOIN,
+        LEAVE
     }
 
     /*
