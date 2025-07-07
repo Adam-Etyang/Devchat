@@ -1,18 +1,37 @@
 # Devchat - Collaborative Development Platform
 
-A modern, real-time collaborative development platform built with Spring Boot and modern web technologies. Devchat provides project management, issue tracking, and team collaboration features with real-time updates.
+A modern, real-time collaborative development platform built with Spring Boot and modern web technologies. Devchat provides project management, issue tracking, team collaboration, and real-time activity tracking with complete user isolation.
 
-## Features
+## 🚀 Features
 
-- **Project Management**: Create, manage, and track development projects
+### Core Features
+
+- **Project Management**: Create, manage, and track development projects with user isolation
 - **Issue Tracking**: Comprehensive issue management with priority, status, and assignment
 - **Real-time Updates**: Live notifications and updates across the platform
 - **User Management**: User profiles, authentication, and role-based access
 - **Dashboard**: Centralized overview of projects, issues, and recent activity
-- **Responsive Design**: Modern UI built with TailwindCSS
+- **Recent Activity**: User-specific activity tracking and timeline
+- **Real-time Chat**: WebSocket-based messaging system with persistence
 - **Settings Management**: User preferences and profile customization
 
-## Technology Stack
+### User Isolation & Security
+
+- **Multi-tenant Architecture**: Each user has their own isolated data
+- **User Context Management**: Automatic user context for all operations
+- **Secure Authentication**: JWT-based authentication with password encryption
+- **Data Privacy**: Users can only access their own projects, issues, and messages
+- **Activity Tracking**: User-specific recent activity and notifications
+
+### Real-time Features
+
+- **Live Updates**: Real-time project and issue updates
+- **Instant Notifications**: Real-time notifications for team activities
+- **WebSocket Integration**: Efficient bidirectional communication
+- **Event-driven Architecture**: Decoupled real-time event handling
+- **Activity Stream**: Real-time activity tracking and display
+
+## 🛠 Technology Stack
 
 ### Backend
 
@@ -21,17 +40,20 @@ A modern, real-time collaborative development platform built with Spring Boot an
 - **Spring Security**: Authentication and authorization
 - **Spring Data JPA**: Data access layer with Hibernate
 - **PostgreSQL**: Primary database with Flyway migrations
-- **WebSocket**: Real-time communication
+- **WebSocket**: Real-time communication with STOMP
 - **JWT**: Stateless authentication tokens
+- **BCrypt**: Password encryption
 - **Lombok**: Reduces boilerplate code
 - **Maven**: Dependency management and build tool
 
 ### Frontend
 
-- **Vanilla JavaScript (ES6+)**: Modern JavaScript with modules
+- **Vanilla JavaScript (ES6+)**: Modern JavaScript with ES6 modules
 - **TailwindCSS**: Utility-first CSS framework
 - **HTML5**: Semantic markup
 - **CSS3**: Modern styling with custom properties
+- **WebSocket Client**: Real-time communication
+- **Local Storage**: Client-side data persistence
 
 ### Development Tools
 
@@ -39,7 +61,7 @@ A modern, real-time collaborative development platform built with Spring Boot an
 - **PostgreSQL**: Relational database
 - **Maven**: Build automation and dependency management
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Devchat/
@@ -49,7 +71,9 @@ Devchat/
 │   │   │   ├── config/                 # Configuration classes
 │   │   │   │   ├── Appconfig.java
 │   │   │   │   ├── CorsConfig.java
-│   │   │   │   └── securityconfig.java
+│   │   │   │   ├── securityconfig.java
+│   │   │   │   ├── WebSocketConfig.java
+│   │   │   │   └── UserContextInterceptor.java
 │   │   │   ├── constants/              # Application constants
 │   │   │   │   └── ProjectConstants.java
 │   │   │   ├── Controller/             # REST API controllers
@@ -62,9 +86,11 @@ Devchat/
 │   │   │   │   └── UserController.java
 │   │   │   ├── DTO/                    # Data Transfer Objects
 │   │   │   │   ├── AuthresponseDTO.java
+│   │   │   │   ├── CreateMessageRequest.java
 │   │   │   │   ├── ErrorresponseDTO.java
 │   │   │   │   ├── IssueDTO.java
 │   │   │   │   ├── LoginDTO.java
+│   │   │   │   ├── MessageDTO.java
 │   │   │   │   ├── ProjectCreateRequest.java
 │   │   │   │   ├── ProjectDTO.java
 │   │   │   │   ├── ProjectMemberDTO.java
@@ -107,37 +133,75 @@ Devchat/
 │   │   │   │   ├── UserService.java
 │   │   │   │   └── UserServiceImpl.java
 │   │   │   └── util/                   # Utility classes
-│   │   │       └── jwtUtil.java
+│   │   │       ├── jwtUtil.java
+│   │   │       └── UserContext.java
 │   │   └── resources/
 │   │       ├── application.properties  # Application configuration
+│   │       ├── static/                 # Frontend assets (served by Spring Boot)
+│   │       │   ├── pages/              # HTML pages
+│   │       │   ├── js/                 # JavaScript modules
+│   │       │   ├── css/                # Stylesheets
+│   │       │   └── test-activity.html  # Testing page
 │   │       └── db/migration/           # Database migrations
-│   │           ├── V1__Initial_Schema.sql
-│   │           ├── V2__Add_User_Profile_Fields.sql
-│   │           └── V3__Add_Issue_Fields.sql
 │   └── test/                           # Test classes
-├── Frontend/                           # Frontend assets
+├── Frontend/                           # Frontend source (development)
 │   └── dist/
 │       ├── pages/                      # HTML pages
-│       │   ├── dashboard.html
-│       │   ├── issue.html
-│       │   ├── Login.html
-│       │   ├── Notifications.html
-│       │   ├── project/
-│       │   │   └── project.html
-│       │   ├── settings.html
-│       │   └── signup.html
-│       └── js/                         # JavaScript modules
-│           ├── chat.js
-│           ├── dashboard.js
-│           ├── issue.js
-│           ├── project.js
-│           ├── realtime.js
-│           └── settings.js
+│       ├── js/                         # JavaScript modules
+│       └── css/                        # Stylesheets
 ├── pom.xml                             # Maven configuration
 └── README.md                           # Project documentation
 ```
 
-## Architecture & Design Patterns
+## 🏗 Architecture & Design Patterns
+
+### Multi-tenant Architecture with User Isolation
+
+Devchat implements a **multi-tenant architecture** where each user has complete data isolation:
+
+#### User Context Management
+
+```java
+@Component
+public class UserContext {
+    private static final ThreadLocal<User> currentUser = new ThreadLocal<>();
+
+    public static void setCurrentUser(User user) {
+        currentUser.set(user);
+    }
+
+    public static User getCurrentUser() {
+        return currentUser.get();
+    }
+
+    public static Long getCurrentUserId() {
+        User user = getCurrentUser();
+        return user != null ? user.getId() : null;
+    }
+}
+```
+
+#### User Context Interceptor
+
+```java
+@Component
+public class UserContextInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String userId = request.getHeader("X-User-ID");
+        if (userId != null && !userId.trim().isEmpty()) {
+            try {
+                Long id = Long.parseLong(userId);
+                User user = userService.getUserById(id);
+                UserContext.setCurrentUser(user);
+            } catch (Exception e) {
+                System.out.println("Failed to set user context: " + e.getMessage());
+            }
+        }
+        return true;
+    }
+}
+```
 
 ### Layered Architecture
 
@@ -145,78 +209,49 @@ The application follows a **3-tier layered architecture**:
 
 1. **Presentation Layer** (Controllers)
 
-   - REST API endpoints
+   - REST API endpoints with user authentication
    - Request/response handling
-   - Input validation
+   - Input validation and error handling
 
 2. **Business Logic Layer** (Services)
 
-   - Business rules implementation
+   - Business rules implementation with user isolation
    - Transaction management
-   - Data processing
+   - Data processing and validation
 
 3. **Data Access Layer** (Repositories)
-   - Database operations
+   - Database operations with user filtering
    - Entity management
    - Query optimization
 
-### SOLID Principles Implementation
-
-#### 1. Single Responsibility Principle (SRP)
-
-- Each class has a single, well-defined responsibility
-- `ProjectService` handles only project-related business logic
-- `IssueService` manages issue-specific operations
-- `UserService` focuses on user management
-
-#### 2. Open/Closed Principle (OCP)
-
-- Services are open for extension through interfaces
-- New features can be added without modifying existing code
-- Repository interfaces allow for different implementations
-
-#### 3. Liskov Substitution Principle (LSP)
-
-- Service implementations can be substituted for their interfaces
-- Repository implementations are interchangeable
-- DTOs maintain consistent contracts
-
-#### 4. Interface Segregation Principle (ISP)
-
-- Specific interfaces for different concerns
-- `ProjectService` and `IssueService` have focused contracts
-- Repository interfaces are segregated by entity type
-
-#### 5. Dependency Inversion Principle (DIP)
-
-- High-level modules depend on abstractions
-- Services depend on repository interfaces
-- Controllers depend on service interfaces
-- Dependency injection through Spring framework
-
 ### Design Patterns
 
-#### 1. Repository Pattern
+#### 1. Repository Pattern with User Isolation
 
 ```java
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    List<Project> findByStatus(String status);
     List<Project> findByCreatedById(Long userId);
+    List<Project> findByStatusAndCreatedById(String status, Long userId);
 }
 ```
 
-#### 2. Service Layer Pattern
+#### 2. Service Layer Pattern with User Context
 
 ```java
 @Service
 @Transactional
 public class ProjectServiceImpl implements ProjectService {
-    private final ProjectRepository projectRepository;
-    // Business logic implementation
+    public List<ProjectDTO> getAllProjects() {
+        Long currentUserId = UserContext.getCurrentUserId();
+        List<Project> projects = projectRepository.findByCreatedById(currentUserId);
+        return projects.stream()
+                .map(projectMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }
 ```
 
-#### 3. DTO Pattern
+#### 3. DTO Pattern for Data Transfer
 
 ```java
 @Data
@@ -226,40 +261,33 @@ public class ProjectDTO {
     private Long id;
     private String name;
     private String description;
-    // Data transfer without exposing entities
+    private String status;
+    private LocalDateTime createdAt;
+    private Long createdById;
 }
 ```
 
-#### 4. Factory Pattern (Mapper)
-
-```java
-@Component
-public class ProjectMapper {
-    public ProjectDTO toDTO(Project project) {
-        // Entity to DTO conversion
-    }
-
-    public Project toEntity(ProjectDTO dto) {
-        // DTO to Entity conversion
-    }
-}
-```
-
-#### 5. Observer Pattern (Real-time Updates)
+#### 4. Observer Pattern for Real-time Updates
 
 ```javascript
 // Frontend real-time manager
 realtimeManager.subscribe("projects", (data) => {
-  // Handle real-time updates
+  if (data.action === "created" || data.action === "updated") {
+    loadRecentProjects();
+    loadRecentActivity();
+  }
 });
 ```
 
-#### 6. Strategy Pattern (Status Management)
+#### 5. Strategy Pattern for Status Management
 
 ```java
-// Different strategies for different status types
 public enum ProjectStatus {
     ACTIVE, PLANNING, COMPLETED, ON_HOLD
+}
+
+public enum IssueStatus {
+    OPEN, IN_PROGRESS, RESOLVED, CLOSED
 }
 ```
 
@@ -310,78 +338,30 @@ public enum ProjectStatus {
 </dependency>
 ```
 
-## Getting Started
+## 🗄 Database Schema
 
-### Prerequisites
+### Core Entities with User Isolation
 
-- Java 21 or higher
-- Maven 3.6+
-- PostgreSQL 14+
-- Node.js (for frontend development)
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/yourusername/devchat.git
-   cd devchat
-   ```
-
-2. **Database Setup**
-
-   ```bash
-   # Create PostgreSQL database
-   createdb Devchat
-
-   # Update application.properties with your database credentials
-   ```
-
-3. **Backend Setup**
-
-   ```bash
-   # Run the Spring Boot application
-   mvn spring-boot:run
-   ```
-
-4. **Frontend Setup**
-
-   ```bash
-   # Navigate to frontend directory
-   cd Frontend/dist
-
-   # Serve the frontend (using any static server)
-   python -m http.server 3000
-   # or
-   npx serve .
-   ```
-
-5. **Access the Application**
-   - Backend API: http://localhost:8080
-   - Frontend: http://localhost:5500
-
-## Database Schema
-
-### Core Entities
-
-- **Users**: User accounts and profiles
-- **Projects**: Development projects with status tracking
-- **Issues**: Project issues with priority and assignment
-- **Messages**: Real-time chat messages with persistence
+- **Users**: User accounts and profiles with authentication
+- **Projects**: Development projects with user-specific ownership
+- **Issues**: Project issues with user-specific assignment and reporting
+- **Messages**: Real-time chat messages with user-specific conversations
 - **Roles**: User roles and permissions
-- **Updates**: Real-time activity tracking
+- **Updates**: Real-time activity tracking with user isolation
 
 ### Key Relationships
 
-- Users can manage multiple projects
-- Projects can have multiple issues
-- Issues can be assigned to users
-- Users can send/receive messages
-- Real-time updates track all activities
+- Users own their projects (one-to-many)
+- Projects contain issues (one-to-many)
+- Issues are assigned to users (many-to-one)
+- Users send/receive messages (many-to-many)
+- Updates track user-specific activities (one-to-many)
 
-## Security Features
+## 🔐 Security Features
 
 - **JWT Authentication**: Stateless token-based authentication
+- **BCrypt Password Encryption**: Secure password hashing
+- **User Context Management**: Automatic user isolation
 - **CORS Configuration**: Cross-origin resource sharing setup
 - **Input Validation**: Request validation and sanitization
 - **Role-based Access**: User role management
@@ -393,23 +373,28 @@ public enum ProjectStatus {
 
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
-- `GET /api/auth/all` - Get all users
+- `GET /api/auth/all` - Get all users (admin only)
 
-### Projects
+### Projects (User-isolated)
 
-- `GET /api/projects` - Get all projects
+- `GET /api/projects` - Get user's projects
 - `POST /api/projects/create` - Create new project
-- `GET /api/projects/{id}` - Get project by ID
-- `PUT /api/projects/{id}` - Update project
-- `DELETE /api/projects/{id}` - Delete project
+- `GET /api/projects/{id}` - Get project by ID (user's projects only)
+- `PUT /api/projects/{id}` - Update project (user's projects only)
+- `DELETE /api/projects/{id}` - Delete project (user's projects only)
 
-### Issues
+### Issues (User-isolated)
 
-- `GET /api/issues` - Get all issues
+- `GET /api/issues` - Get user's issues
 - `POST /api/issues` - Create new issue
-- `GET /api/issues/{id}` - Get issue by ID
-- `PUT /api/issues/{id}` - Update issue
-- `DELETE /api/issues/{id}` - Delete issue
+- `GET /api/issues/{id}` - Get issue by ID (user's issues only)
+- `PUT /api/issues/{id}` - Update issue (user's issues only)
+- `DELETE /api/issues/{id}` - Delete issue (user's issues only)
+
+### Recent Activity (User-isolated)
+
+- `GET /api/updates/recent` - Get user's recent activity
+- `GET /api/updates/since/{timestamp}` - Get updates since timestamp
 
 ### Messaging
 
@@ -424,7 +409,78 @@ public enum ProjectStatus {
 - `PUT /api/users/password` - Change password
 - `DELETE /api/users/account` - Delete account
 
-## Testing
+## 💬 Real-time Features
+
+### WebSocket Messaging
+
+- **Connection**: `ws://localhost:8080/chat-websocket`
+- **Protocol**: STOMP over SockJS
+- **Features**: Public chat, private messaging, typing indicators
+- **Persistence**: All messages saved to database
+
+### Real-time Updates
+
+- **Project Updates**: Live project creation, updates, and deletion
+- **Issue Updates**: Real-time issue status changes and assignments
+- **Activity Stream**: Live activity tracking and notifications
+- **User Notifications**: Instant notifications for team activities
+
+### Event-driven Architecture
+
+```javascript
+// Subscribe to real-time updates
+realtimeManager.subscribe("projects", (data) => {
+  console.log("Project update:", data);
+  loadRecentProjects();
+  loadRecentActivity();
+});
+
+realtimeManager.subscribe("issues", (data) => {
+  console.log("Issue update:", data);
+  loadRecentIssues();
+  loadRecentActivity();
+});
+```
+
+## 🎨 Frontend Architecture
+
+### Modular JavaScript
+
+- **ES6 Modules**: Modern JavaScript with import/export
+- **Component-based**: Modular UI components
+- **Real-time Integration**: WebSocket and REST API integration
+- **User Context**: Automatic user ID management
+
+### Key Frontend Modules
+
+- **api.js**: Centralized API utilities with authentication
+- **dashboard.js**: Dashboard functionality and real-time updates
+- **project.js**: Project management with user isolation
+- **issue.js**: Issue management with user isolation
+- **chat.js**: Real-time messaging system
+- **realtime.js**: Real-time update management
+
+### Authentication Flow
+
+```javascript
+// Login and store user context
+const response = await fetch("/api/auth/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(loginData),
+});
+
+const data = await response.json();
+localStorage.setItem("userId", data.userProfile.id);
+localStorage.setItem("username", data.userProfile.username);
+
+// Use authFetch for authenticated requests
+const projects = await authFetch("/api/projects");
+```
+
+## 🧪 Testing
+
+### Backend Testing
 
 ```bash
 # Run all tests
@@ -437,249 +493,56 @@ mvn test -Dtest=ProjectServiceTest
 mvn jacoco:report
 ```
 
-## Performance Considerations
+### Frontend Testing
 
-- **Database Indexing**: Optimized queries with proper indexing
+- **Manual Testing**: Use test-activity.html for API testing
+- **Browser Testing**: Test real-time features in browser
+- **User Isolation Testing**: Verify data isolation between users
+
+## 📊 Performance Considerations
+
+- **Database Indexing**: Optimized queries with user-specific indexing
 - **Connection Pooling**: HikariCP for database connection management
 - **Caching**: Spring Boot caching for frequently accessed data
 - **Real-time Updates**: Efficient WebSocket communication
 - **Frontend Optimization**: Modular JavaScript with lazy loading
+- **User Isolation**: Efficient filtering by user ID
 
-## Real-time Features
+## 🔄 Recent Activity System
 
-- **Live Updates**: Real-time project and issue updates
-- **Notifications**: Instant notifications for team activities
-- **WebSocket Integration**: Efficient bidirectional communication
-- **Event-driven Architecture**: Decoupled real-time event handling
+### Features
 
-## 💬 WebSocket Messaging Architecture
+- **User-specific Activity**: Each user sees only their own activity
+- **Real-time Updates**: Activity updates in real-time
+- **Comprehensive Tracking**: Tracks projects, issues, and user actions
+- **Timeline Display**: Chronological activity display
 
-Devchat implements a comprehensive WebSocket-based messaging system for real-time communication between users. The system combines WebSocket for real-time messaging with REST APIs for initial data loading and persistence.
+### Activity Types
 
-### Architecture Overview
+- **Project Creation**: When users create new projects
+- **Project Updates**: When projects are modified
+- **Project Deletion**: When projects are deleted
+- **Issue Creation**: When issues are created
+- **Issue Updates**: When issues are modified
+- **Issue Resolution**: When issues are resolved
 
-```
-┌─────────────────┐    WebSocket     ┌─────────────────┐
-│   Frontend      │ ◄──────────────► │   Backend       │
-│   (Browser)     │                  │   (Spring Boot) │
-└─────────────────┘                  └─────────────────┘
-         │                                     │
-         │ REST API                            │ Database
-         ▼                                     ▼
-┌─────────────────┐                  ┌─────────────────┐
-│   Static Files  │                  │   PostgreSQL    │
-│   (HTML/CSS/JS) │                  │   (Messages)    │
-└─────────────────┘                  └─────────────────┘
-```
-
-### WebSocket Endpoints
-
-#### Connection
-
-- **WebSocket URL**: `ws://localhost:8080/chat-websocket`
-- **Protocol**: STOMP over SockJS
-- **Authentication**: Session-based (username stored in WebSocket session)
-
-#### Message Mappings
-
-| Endpoint                        | Purpose                      | Payload                   | Response                          |
-| ------------------------------- | ---------------------------- | ------------------------- | --------------------------------- |
-| `/app/chat.sendMessage`         | Send public chat message     | `Message` object          | Broadcast to `/topic/public`      |
-| `/app/chat.addUser`             | User join/leave notification | `Message` object          | Broadcast to `/topic/public`      |
-| `/app/chat.privateMessage`      | Send private message         | `Message` object          | Send to specific user             |
-| `/app/chat.typing`              | Typing indicator             | `Message` object          | Broadcast to `/topic/typing`      |
-| `/app/chat.getConversation`     | Get conversation history     | `String[]` (user1, user2) | Send to `/topic/conversation`     |
-| `/app/chat.getSentMessages`     | Get user's sent messages     | `String` (sender)         | Send to `/topic/sentMessages`     |
-| `/app/chat.getReceivedMessages` | Get user's received messages | `String` (receiver)       | Send to `/topic/receivedMessages` |
-
-#### Topics (Subscriptions)
-
-| Topic                     | Purpose              | Description                                  |
-| ------------------------- | -------------------- | -------------------------------------------- |
-| `/topic/public`           | Public messages      | All chat messages and user join/leave events |
-| `/topic/private`          | Private messages     | Direct messages between users                |
-| `/topic/typing`           | Typing indicators    | Real-time typing status                      |
-| `/topic/conversation`     | Conversation history | Historical messages between users            |
-| `/topic/sentMessages`     | Sent messages        | User's sent message history                  |
-| `/topic/receivedMessages` | Received messages    | User's received message history              |
-
-### Message Entity Structure
+### Implementation
 
 ```java
-@Entity
-@Table(name = "messages")
-public class Message {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String sender;
-
-    @Column(nullable = false)
-    private String receiver;
-
-    @Column(nullable = false, length = 1000)
-    private String content;
-
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
-
-    @Column(name = "is_read", nullable = false)
-    private boolean isRead = false;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MessageType type = MessageType.CHAT;
-
-    public enum MessageType {
-        CHAT,    // Regular chat message
-        JOIN,    // User joined notification
-        LEAVE    // User left notification
+@Service
+public class UpdateServiceImpl implements UpdateService {
+    public void recordUpdate(String type, String action, Long entityId, String entityName) {
+        Long currentUserId = UserContext.getCurrentUserId();
+        Update update = new Update();
+        update.setType(type);
+        update.setAction(action);
+        update.setEntityId(entityId);
+        update.setEntityName(entityName);
+        update.setUserId(currentUserId);
+        update.setCreatedAt(LocalDateTime.now());
+        updateRepository.save(update);
     }
 }
 ```
 
-### Frontend Integration
 
-#### WebSocket Connection Setup
-
-```javascript
-// Connect to WebSocket
-const socket = new SockJS("http://localhost:8080/chat-websocket");
-const stompClient = Stomp.over(socket);
-
-stompClient.connect({}, function (frame) {
-  console.log("Connected to WebSocket:", frame);
-
-  // Subscribe to public messages
-  stompClient.subscribe("/topic/public", function (message) {
-    const chatMessage = JSON.parse(message.body);
-    showMessage(chatMessage);
-  });
-
-  // Subscribe to private messages
-  stompClient.subscribe("/user/topic/private", function (message) {
-    const chatMessage = JSON.parse(message.body);
-    showPrivateMessage(chatMessage);
-  });
-});
-```
-
-#### Sending Messages
-
-```javascript
-// Send public message
-function sendMessage() {
-  const chatMessage = {
-    sender: currentUsername,
-    receiver: "public",
-    content: messageText,
-    type: "CHAT",
-    timestamp: new Date().toISOString(),
-  };
-
-  stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-}
-
-// Send private message
-function sendPrivateMessage(receiver, content) {
-  const chatMessage = {
-    sender: currentUsername,
-    receiver: receiver,
-    content: content,
-    type: "CHAT",
-    timestamp: new Date().toISOString(),
-  };
-
-  stompClient.send("/app/chat.privateMessage", {}, JSON.stringify(chatMessage));
-}
-```
-
-### REST API Integration
-
-The WebSocket system is complemented by REST endpoints for initial data loading and persistence:
-
-#### Message REST Endpoints
-
-| Method | Endpoint                      | Purpose                        |
-| ------ | ----------------------------- | ------------------------------ |
-| `GET`  | `/api/messages/public/recent` | Get recent public messages     |
-| `GET`  | `/api/messages/conversation`  | Get conversation between users |
-| `PUT`  | `/api/messages/{id}/read`     | Mark message as read           |
-
-### Message Flow
-
-1. **User Joins Chat**
-
-   ```
-   Frontend → /app/chat.addUser → Backend → Database → /topic/public
-   ```
-
-2. **Sending Message**
-
-   ```
-   Frontend → /app/chat.sendMessage → Backend → Database → /topic/public
-   ```
-
-3. **Private Message**
-
-   ```
-   Frontend → /app/chat.privateMessage → Backend → Database → /topic/private (specific user)
-   ```
-
-4. **Loading History**
-   ```
-   Frontend → GET /api/messages/public/recent → Backend → Database → Frontend
-   ```
-
-### Error Handling
-
-- **Connection Failures**: Automatic fallback to local chat mode
-- **Database Errors**: Graceful degradation with error logging
-- **Invalid Messages**: Validation and rejection with error responses
-- **User Disconnection**: Automatic cleanup of user sessions
-
-### Performance Features
-
-- **Message Persistence**: All messages saved to database for history
-- **Efficient Broadcasting**: Messages sent only to relevant subscribers
-- **Connection Management**: Automatic session cleanup and reconnection
-- **Message Queuing**: Handles high message volumes efficiently
-
-### Security Considerations
-
-- **Session Management**: Username stored in WebSocket session attributes
-- **Input Validation**: Message content validation and sanitization
-- **CORS Configuration**: Proper cross-origin setup for WebSocket connections
-- **Rate Limiting**: Protection against message spam
-
-### Usage Examples
-
-#### Basic Chat Implementation
-
-```html
-<!-- chat.html -->
-<!DOCTYPE html>
-<html>
-  <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.5/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-  </head>
-  <body>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Type your message..." />
-    <button onclick="sendMessage()">Send</button>
-
-    <script src="chat.js"></script>
-  </body>
-</html>
-```
-
-#### Advanced Features
-
-- **File Sharing**: Support for image and file uploads
-- **Typing Indicators**: Real-time typing status
-- **Message Read Status**: Track message read receipts
-- **User Presence**: Online/offline status tracking
-- **Message Search**: Historical message retrieval
