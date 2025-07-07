@@ -26,9 +26,16 @@ public class IssueController {
      */
     @PostMapping
     public ResponseEntity<IssueDTO> createIssue(@RequestBody IssueDTO issueDTO) {
-        // For now, use a default creator ID. In a real app, get this from security
-        // context
-        Long creatorId = 2L; // TODO: Get from security context
+        // Get user ID from the DTO, which should be set by the frontend
+        Long creatorId = issueDTO.getReporterId();
+
+        // Ensure creatorId is not null
+        if (creatorId == null) {
+            // Handle cases where the creator ID is not provided
+            // You might want to return a BAD_REQUEST response
+            // For now, we'll fallback to a default, but this should be improved
+            creatorId = 2L; // TODO: Replace with proper JWT authentication and error handling
+        }
 
         IssueDTO createdIssue = issueService.createIssue(issueDTO, creatorId);
         return new ResponseEntity<>(createdIssue, HttpStatus.CREATED);

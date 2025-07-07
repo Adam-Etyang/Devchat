@@ -17,6 +17,14 @@ export async function fetchIssuesByProject(projectId) {
 
 // Create a new issue
 export async function createIssue(issueData) {
+  // Get current user ID from localStorage
+  const userId = localStorage.getItem('userId');
+  
+  // Add reporterId to the issue data
+  if (userId) {
+    issueData.reporterId = parseInt(userId, 10);
+  }
+
   const response = await fetch('http://localhost:8080/api/issues', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -326,11 +334,11 @@ function initializeRealtimeUpdates() {
     if (data.action === 'created') {
       // Refresh the entire list
       loadIssues();
-      showNotification(`New issue "${data.issue.title}" created!`);
+      showNotification(`New issue "${data.entityName}" created!`);
     } else if (data.action === 'updated') {
       // Refresh the entire list
       loadIssues();
-      showNotification(`Issue "${data.issue.title}" updated`);
+      showNotification(`Issue "${data.entityName}" updated`);
     } else if (data.action === 'deleted') {
       // Refresh the entire list
       loadIssues();

@@ -176,8 +176,8 @@ public class IssueServiceImpl implements IssueService {
         dto.setType(issue.getType());
         dto.setPriority(issue.getPriority());
         dto.setStatus(issue.getStatus());
-        dto.setCreatedById(issue.getCreatedBy().getId());
-        dto.setCreatedByName(issue.getCreatedBy().getUsername());
+        dto.setReporterId(issue.getCreatedBy().getId());
+        dto.setReporterName(issue.getCreatedBy().getUsername());
         dto.setCreatedAt(issue.getCreatedAt());
         dto.setUpdatedAt(issue.getUpdatedAt());
 

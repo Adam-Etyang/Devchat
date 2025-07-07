@@ -36,11 +36,11 @@ public class Issue {
     private String status; // OPEN, IN_PROGRESS, RESOLVED, CLOSED
 
     @ManyToOne
-    @JoinColumn(name = "assigned_to_id")
+    @JoinColumn(name = "assignee_id", foreignKey = @ForeignKey(name = "fk_issues_assignee"))
     private User assignedTo;
 
     @ManyToOne
-    @JoinColumn(name = "created_by_id", nullable = false)
+    @JoinColumn(name = "reporter_id", nullable = false, foreignKey = @ForeignKey(name = "fk_issues_reporter"))
     private User createdBy;
 
     @Column(nullable = false)

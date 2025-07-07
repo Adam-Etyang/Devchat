@@ -35,9 +35,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (isValid) {
-      // Simulate login success
-      alert('Login successful!');
-      window.location.href = '../src/index.html'; // TODO: Replace with actual redirect logic
+      // Make actual login API call
+      const loginData = {
+        emailOrUsername: email.value.trim(),
+        password: password.value
+      };
+
+      fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error(text);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Store user data in localStorage
+        localStorage.setItem('userId', data.userProfile.id);
+        localStorage.setItem('username', data.userProfile.username);
+        localStorage.setItem('email', data.userProfile.email);
+        localStorage.setItem('fullName', data.userProfile.fullName);
+        
+        // Show success message
+        alert('Login successful! Welcome, ' + data.userProfile.username);
+        
+        // Redirect to dashboard
+        window.location.href = 'index.html';
+      })
+      .catch(error => {
+        alert('Login failed: ' + error.message);
+      });
     }
   });
 });

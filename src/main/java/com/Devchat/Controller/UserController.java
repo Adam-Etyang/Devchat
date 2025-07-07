@@ -38,7 +38,20 @@ public class UserController {
     public ResponseEntity<?> loginUser(@RequestBody LoginDTO logindto) {
         try {
             User loggedInUser = userService.loginUser(logindto);
-            return ResponseEntity.ok("User logged in successfully: " + loggedInUser.getUsername());
+
+            // Create response with user data
+            AuthresponseDTO response = new AuthresponseDTO();
+            response.setUserProfile(new UserprofileDTO());
+            response.getUserProfile().setId(loggedInUser.getId());
+            response.getUserProfile().setUsername(loggedInUser.getUsername());
+            response.getUserProfile().setEmail(loggedInUser.getEmail());
+            response.getUserProfile().setFullName(loggedInUser.getFullName());
+            response.getUserProfile().setPhone(loggedInUser.getPhone());
+            response.getUserProfile().setBio(loggedInUser.getBio());
+            response.getUserProfile().setLocation(loggedInUser.getLocation());
+            response.getUserProfile().setCreatedAt(loggedInUser.getCreatedAt());
+
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Error: " + ex.getMessage());

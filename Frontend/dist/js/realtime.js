@@ -1,4 +1,4 @@
-// Real-time update system for Devchat
+// Real-time update system
 class RealtimeManager {
   constructor() {
     this.pollingInterval = 5000; // 5 seconds
@@ -6,6 +6,7 @@ class RealtimeManager {
     this.lastUpdateTime = Date.now();
     this.subscribers = new Map();
     this.isConnected = false;
+    this.processedUpdates = new Set(); // Track processed updates to avoid duplicates
   }
 
   // Start polling for updates
@@ -17,6 +18,11 @@ class RealtimeManager {
     this.pollingTimer = setInterval(() => {
       this.checkForUpdates();
     }, this.pollingInterval);
+    
+    // Clean up old processed updates every 10 minutes
+    setInterval(() => {
+      this.cleanupProcessedUpdates();
+    }, 10 * 60 * 1000);
     
     console.log('Real-time polling started');
   }
@@ -41,7 +47,20 @@ class RealtimeManager {
         
         if (updates.length > 0) {
           this.lastUpdateTime = Date.now();
-          this.notifySubscribers(updates);
+          
+          // Filter out already processed updates
+          const newUpdates = updates.filter(update => {
+            const updateKey = `${update.action}-${update.type}-${update.entityId}-${update.id}`;
+            if (this.processedUpdates.has(updateKey)) {
+              return false;
+            }
+            this.processedUpdates.add(updateKey);
+            return true;
+          });
+          
+          if (newUpdates.length > 0) {
+            this.notifySubscribers(newUpdates);
+          }
         }
       } else {
         console.warn('Updates endpoint returned status:', response.status);
@@ -79,7 +98,7 @@ class RealtimeManager {
       if (callbacks) {
         callbacks.forEach(callback => {
           try {
-            callback(update.data);
+            callback(update);
           } catch (error) {
             console.error('Error in update callback:', error);
           }
@@ -91,6 +110,16 @@ class RealtimeManager {
   // Manually trigger an update (for immediate feedback)
   triggerUpdate(type, data) {
     this.notifySubscribers([{ type, data }]);
+  }
+
+  // Clean up old processed updates to prevent memory leaks
+  cleanupProcessedUpdates() {
+    // Keep only the last 1000 processed updates to prevent memory leaks
+    if (this.processedUpdates.size > 1000) {
+      const keysArray = Array.from(this.processedUpdates);
+      const keysToRemove = keysArray.slice(0, keysArray.length - 1000);
+      keysToRemove.forEach(key => this.processedUpdates.delete(key));
+    }
   }
 }
 

@@ -19,8 +19,8 @@ public class IssueDTO {
     private String status;
     private Long assignedToId;
     private String assignedToName;
-    private Long createdById;
-    private String createdByName;
+    private Long reporterId;
+    private String reporterName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

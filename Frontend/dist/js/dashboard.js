@@ -311,7 +311,7 @@ function initializeRealtimeUpdates() {
       
       // Show notification for new projects
       if (data.action === 'created') {
-        showNotification(`New project "${data.project.name}" created!`, 'success');
+        showNotification(`New project "${data.entityName}" created!`, 'success');
       }
     }
   });
@@ -328,7 +328,7 @@ function initializeRealtimeUpdates() {
       
       // Show notification for new issues
       if (data.action === 'created') {
-        showNotification(`New issue "${data.issue.title}" created!`, 'success');
+        showNotification(`New issue "${data.entityName}" created!`, 'success');
       }
     }
   });
