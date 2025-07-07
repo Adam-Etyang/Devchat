@@ -193,6 +193,83 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 - Real-time user experience
 - Instant message delivery
 
+## Object-Oriented Programming (OOP) Principles
+
+Devchat leverages the four foundational OOP principles throughout its backend Java architecture to ensure modularity, maintainability, and extensibility.
+
+### Encapsulation
+
+**Definition:** Encapsulation is the bundling of data (fields) and methods that operate on that data within a single unit (class), restricting direct access to some of the object's components.
+
+**In Devchat:**
+
+- Entity classes (e.g., `User`, `Project`, `Issue`) encapsulate their fields as `private` and expose access via public getters and setters.
+- Service and controller classes encapsulate business logic and request handling, exposing only necessary methods.
+
+**Example:**
+
+```java
+public class User {
+    private Long id;
+    private String username;
+    // ... other fields ...
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    // ...
+}
+```
+
+### Abstraction
+
+**Definition:** Abstraction means exposing only essential features of an object while hiding the implementation details.
+
+**In Devchat:**
+
+- Interfaces such as `ProjectService`, `IssueService`, and repository interfaces define contracts without exposing implementation details.
+- DTOs (Data Transfer Objects) abstract away internal entity details from API consumers.
+
+**Example:**
+
+```java
+public interface ProjectService {
+    ProjectDTO createProject(ProjectCreateRequest request);
+    // ...
+}
+```
+
+### Inheritance
+
+**Definition:** Inheritance allows a class to inherit fields and methods from another class, promoting code reuse.
+
+**In Devchat:**
+
+- All repository interfaces extend `JpaRepository`, inheriting CRUD operations.
+- Custom exceptions extend base exception classes (e.g., `ProjectNotFoundException extends RuntimeException`).
+
+**Example:**
+
+```java
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+    // Inherits CRUD methods
+}
+```
+
+### Polymorphism
+
+**Definition:** Polymorphism allows objects to be treated as instances of their parent class or interface, enabling flexible and interchangeable code.
+
+**In Devchat:**
+
+- Service and repository interfaces allow for multiple interchangeable implementations (e.g., for testing or extension).
+- Controllers and services use interface types for dependency injection, supporting polymorphic behavior.
+
+**Example:**
+
+```java
+@Autowired
+private ProjectService projectService; // Can be any implementation of ProjectService
+```
+
 ## SOLID Principles Implementation
 
 ### Single Responsibility Principle (SRP)
