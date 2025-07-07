@@ -1,6 +1,7 @@
 package com.Devchat.Controller;
 
 import com.Devchat.Service.UpdateService;
+import com.Devchat.util.UserContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
@@ -30,6 +31,12 @@ public class UpdateController {
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getUpdates(@RequestParam(required = false) Long since) {
         try {
+            // Verify user is authenticated
+            Long userId = UserContext.getCurrentUserId();
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
             LocalDateTime sinceDateTime;
 
             if (since != null) {
@@ -58,16 +65,28 @@ public class UpdateController {
             @PathVariable String type,
             @RequestParam(required = false) Long since) {
 
-        LocalDateTime sinceDateTime;
+        try {
+            // Verify user is authenticated
+            Long userId = UserContext.getCurrentUserId();
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
 
-        if (since != null) {
-            sinceDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(since), java.time.ZoneOffset.UTC);
-        } else {
-            sinceDateTime = LocalDateTime.now().minusHours(1);
+            LocalDateTime sinceDateTime;
+
+            if (since != null) {
+                sinceDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(since), java.time.ZoneOffset.UTC);
+            } else {
+                sinceDateTime = LocalDateTime.now().minusHours(1);
+            }
+
+            List<Map<String, Object>> updates = updateService.getUpdatesByTypeSince(type, sinceDateTime);
+            return ResponseEntity.ok(updates);
+        } catch (Exception e) {
+            System.err.println("Error getting updates by type: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        List<Map<String, Object>> updates = updateService.getUpdatesByTypeSince(type, sinceDateTime);
-        return ResponseEntity.ok(updates);
     }
 
     /**
@@ -86,6 +105,12 @@ public class UpdateController {
     @GetMapping("/recent")
     public ResponseEntity<List<Map<String, Object>>> getRecentUpdates() {
         try {
+            // Verify user is authenticated
+            Long userId = UserContext.getCurrentUserId();
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
             List<Map<String, Object>> updates = updateService.getRecentUpdates();
             return ResponseEntity.ok(updates);
         } catch (Exception e) {

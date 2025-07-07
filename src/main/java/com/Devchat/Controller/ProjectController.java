@@ -6,6 +6,7 @@ import com.Devchat.DTO.*;
 import com.Devchat.Service.*;
 //For validating incoming data
 import jakarta.validation.Valid;
+import com.Devchat.util.UserContext;
 
 //Spring annotations for REST controller functionality
 import org.springframework.http.HttpStatus;
@@ -47,17 +48,17 @@ public class ProjectController {
             ProjectDTO projectDTO = createRequest.toProjectDTO();
             System.out.println("Converted to ProjectDTO: " + projectDTO.getName());
 
-            // Use the managerId from the request body as the creator ID
-            Long creatorId = Long.parseLong(projectDTO.getManagerId());
+            // Get the current authenticated user's ID
+            Long creatorId = UserContext.requireCurrentUserId();
             System.out.println("Creator ID: " + creatorId);
 
             ProjectDTO createdProject = projectService.createProject(projectDTO, creatorId);
             System.out.println("Project created successfully with ID: " + createdProject.getId());
 
             return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
-        } catch (NumberFormatException e) {
-            System.err.println("NumberFormatException: " + e.getMessage());
-            return ResponseEntity.badRequest().build();
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
             System.err.println("Exception in createProject: " + e.getMessage());
             e.printStackTrace();
@@ -80,28 +81,29 @@ public class ProjectController {
     }
 
     /**
-     * Retrieves all projects.
+     * Retrieves all projects for the current authenticated user.
      *
      * @return ResponseEntity containing a list of all projects
      */
     @GetMapping // Handles GET requests without parameters
     // Returns list of all projects
-    public ResponseEntity<List<ProjectDTO>> getAllProjects(
-            @RequestParam(required = false) Long userId) {
-
-        if (userId != null) {
-            // Get projects by user ID
-            List<ProjectDTO> userProjects = projectService.getProjectsByUserId(userId);
-            return ResponseEntity.ok(userProjects);
-        } else {
-            // Get all projects
+    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
+        try {
+            // Get all projects for the current authenticated user
             List<ProjectDTO> projects = projectService.getAllProjects();
             return ResponseEntity.ok(projects);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in getAllProjects: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     /**
-     * Searches projects by name (case-insensitive).
+     * Searches projects by name (case-insensitive) for the current authenticated
+     * user.
      *
      * @param name The name to search for
      * @return ResponseEntity containing a list of matching projects
@@ -109,8 +111,16 @@ public class ProjectController {
     @GetMapping("/search") // Handles GET requests for search
     public ResponseEntity<List<ProjectDTO>> searchProjectsByName(
             @RequestParam String name) {
-        List<ProjectDTO> projects = projectService.searchProjectsByName(name);
-        return ResponseEntity.ok(projects);
+        try {
+            List<ProjectDTO> projects = projectService.searchProjectsByName(name);
+            return ResponseEntity.ok(projects);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in searchProjectsByName: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
@@ -126,8 +136,16 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable Long id,
             @Valid @RequestBody ProjectDTO projectDTO) {
-        ProjectDTO updatedProject = projectService.updateProject(id, projectDTO);
-        return ResponseEntity.ok(updatedProject);
+        try {
+            ProjectDTO updatedProject = projectService.updateProject(id, projectDTO);
+            return ResponseEntity.ok(updatedProject);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in updateProject: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
@@ -139,7 +157,15 @@ public class ProjectController {
     @DeleteMapping("/{id}") // Handles DELETE requests
     // Returns 204 (NO CONTENT) on success
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        projectService.deleteProject(id);
-        return ResponseEntity.noContent().build();
+        try {
+            projectService.deleteProject(id);
+            return ResponseEntity.noContent().build();
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in deleteProject: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

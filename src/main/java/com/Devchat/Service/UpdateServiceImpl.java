@@ -2,6 +2,7 @@ package com.Devchat.Service;
 
 import com.Devchat.entity.Update;
 import com.Devchat.repository.UpdateRepository;
+import com.Devchat.util.UserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +29,26 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Override
     public void recordUpdate(String type, String action, Long entityId, String entityName) {
-        recordUpdate(type, action, entityId, entityName, null);
+        Long userId = UserContext.getCurrentUserId();
+        recordUpdate(type, action, entityId, entityName, null, userId);
     }
 
     @Override
     public void recordUpdate(String type, String action, Long entityId, String entityName, String additionalData) {
+        Long userId = UserContext.getCurrentUserId();
+        recordUpdate(type, action, entityId, entityName, additionalData, userId);
+    }
+
+    @Override
+    public void recordUpdate(String type, String action, Long entityId, String entityName, Long userId) {
+        recordUpdate(type, action, entityId, entityName, null, userId);
+    }
+
+    @Override
+    public void recordUpdate(String type, String action, Long entityId, String entityName, String additionalData,
+            Long userId) {
         try {
-            Update update = new Update(type, action, entityId, entityName);
+            Update update = new Update(type, action, entityId, entityName, userId);
             if (additionalData != null) {
                 update.setAdditionalData(additionalData);
             }
@@ -51,7 +65,8 @@ public class UpdateServiceImpl implements UpdateService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getUpdatesSince(LocalDateTime since) {
         try {
-            List<Update> updates = updateRepository.findUpdatesSince(since);
+            Long userId = UserContext.getCurrentUserId();
+            List<Update> updates = updateRepository.findUpdatesSinceForUser(since, userId);
             return convertToMapList(updates);
         } catch (Exception e) {
             // If the table doesn't exist yet, return empty list
@@ -64,7 +79,8 @@ public class UpdateServiceImpl implements UpdateService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getUpdatesByTypeSince(String type, LocalDateTime since) {
         try {
-            List<Update> updates = updateRepository.findUpdatesByTypeSince(type, since);
+            Long userId = UserContext.getCurrentUserId();
+            List<Update> updates = updateRepository.findUpdatesByTypeSinceForUser(type, since, userId);
             return convertToMapList(updates);
         } catch (Exception e) {
             // If the table doesn't exist yet, return empty list
@@ -77,7 +93,8 @@ public class UpdateServiceImpl implements UpdateService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getRecentUpdates() {
         try {
-            List<Update> updates = updateRepository.findTop10ByOrderByCreatedAtDesc();
+            Long userId = UserContext.getCurrentUserId();
+            List<Update> updates = updateRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
             return convertToMapList(updates);
         } catch (Exception e) {
             // If the table doesn't exist yet, return empty list

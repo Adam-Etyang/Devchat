@@ -2,6 +2,7 @@ package com.Devchat.Controller;
 
 import com.Devchat.DTO.IssueDTO;
 import com.Devchat.Service.IssueService;
+import com.Devchat.util.UserContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,19 +27,19 @@ public class IssueController {
      */
     @PostMapping
     public ResponseEntity<IssueDTO> createIssue(@RequestBody IssueDTO issueDTO) {
-        // Get user ID from the DTO, which should be set by the frontend
-        Long creatorId = issueDTO.getReporterId();
+        try {
+            // Get the current authenticated user's ID
+            Long creatorId = UserContext.requireCurrentUserId();
 
-        // Ensure creatorId is not null
-        if (creatorId == null) {
-            // Handle cases where the creator ID is not provided
-            // You might want to return a BAD_REQUEST response
-            // For now, we'll fallback to a default, but this should be improved
-            creatorId = 2L; // TODO: Replace with proper JWT authentication and error handling
+            IssueDTO createdIssue = issueService.createIssue(issueDTO, creatorId);
+            return new ResponseEntity<>(createdIssue, HttpStatus.CREATED);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in createIssue: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        IssueDTO createdIssue = issueService.createIssue(issueDTO, creatorId);
-        return new ResponseEntity<>(createdIssue, HttpStatus.CREATED);
     }
 
     /**
@@ -46,26 +47,50 @@ public class IssueController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<IssueDTO> getIssueById(@PathVariable Long id) {
-        IssueDTO issue = issueService.getIssueById(id);
-        return ResponseEntity.ok(issue);
+        try {
+            IssueDTO issue = issueService.getIssueById(id);
+            return ResponseEntity.ok(issue);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in getIssueById: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
-     * Retrieves all issues.
+     * Retrieves all issues for the current authenticated user.
      */
     @GetMapping
     public ResponseEntity<List<IssueDTO>> getAllIssues() {
-        List<IssueDTO> issues = issueService.getAllIssues();
-        return ResponseEntity.ok(issues);
+        try {
+            List<IssueDTO> issues = issueService.getAllIssues();
+            return ResponseEntity.ok(issues);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in getAllIssues: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
-     * Get issues by project ID
+     * Get issues by project ID for the current authenticated user.
      */
     @GetMapping("/project/{projectId}")
     public ResponseEntity<List<IssueDTO>> getIssuesByProject(@PathVariable Long projectId) {
-        List<IssueDTO> issues = issueService.getIssuesByProject(projectId);
-        return ResponseEntity.ok(issues);
+        try {
+            List<IssueDTO> issues = issueService.getIssuesByProject(projectId);
+            return ResponseEntity.ok(issues);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in getIssuesByProject: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
@@ -73,8 +98,16 @@ public class IssueController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<IssueDTO> updateIssue(@PathVariable Long id, @RequestBody IssueDTO issueDTO) {
-        IssueDTO updatedIssue = issueService.updateIssue(id, issueDTO);
-        return ResponseEntity.ok(updatedIssue);
+        try {
+            IssueDTO updatedIssue = issueService.updateIssue(id, issueDTO);
+            return ResponseEntity.ok(updatedIssue);
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in updateIssue: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**
@@ -82,7 +115,15 @@ public class IssueController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteIssue(@PathVariable Long id) {
-        issueService.deleteIssue(id);
-        return ResponseEntity.noContent().build();
+        try {
+            issueService.deleteIssue(id);
+            return ResponseEntity.noContent().build();
+        } catch (SecurityException e) {
+            System.err.println("SecurityException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            System.err.println("Exception in deleteIssue: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

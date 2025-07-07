@@ -5,6 +5,7 @@ import com.Devchat.DTO.RegisterDTO;
 import com.Devchat.DTO.UserprofileDTO;
 import com.Devchat.entity.User;
 import com.Devchat.repository.UserRepository;
+import com.Devchat.util.UserContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class UserService {
 
     public User registerUser(RegisterDTO registerDto) {
 
-        if (userRepository.findByemail(registerDto.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(registerDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -46,11 +47,11 @@ public class UserService {
 
         System.out.println("Attempting to log in user: " + login);
 
-        Optional<User> userOpt = userRepository.findByemail(login);
+        Optional<User> userOpt = userRepository.findByEmail(login);
         System.out.println("User found by email: " + userOpt.isPresent());
 
         if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByusername(login);
+            userOpt = userRepository.findByUsername(login);
             System.out.println("User found by username: " + userOpt.isPresent());
         }
         if (userOpt.isEmpty()) {
@@ -88,8 +89,21 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
     }
 
+    // Get current authenticated user
+    public User getCurrentUser() {
+        return UserContext.requireCurrentUser();
+    }
+
     // Update user profile
     public User updateUserProfile(Long userId, UserprofileDTO profileDTO) {
+        // Get current authenticated user
+        User currentUser = UserContext.requireCurrentUser();
+
+        // Users can only update their own profile
+        if (!currentUser.getId().equals(userId)) {
+            throw new SecurityException("Access denied: You can only update your own profile");
+        }
+
         User user = getUserById(userId);
 
         if (profileDTO.getUsername() != null) {
@@ -117,6 +131,14 @@ public class UserService {
 
     // Update user password
     public void updatePassword(Long userId, String currentPassword, String newPassword) {
+        // Get current authenticated user
+        User currentUser = UserContext.requireCurrentUser();
+
+        // Users can only update their own password
+        if (!currentUser.getId().equals(userId)) {
+            throw new SecurityException("Access denied: You can only update your own password");
+        }
+
         User user = getUserById(userId);
 
         // Verify current password
@@ -132,6 +154,14 @@ public class UserService {
 
     // Update user preferences (placeholder implementation)
     public void updatePreferences(Long userId, Map<String, Object> preferences) {
+        // Get current authenticated user
+        User currentUser = UserContext.requireCurrentUser();
+
+        // Users can only update their own preferences
+        if (!currentUser.getId().equals(userId)) {
+            throw new SecurityException("Access denied: You can only update your own preferences");
+        }
+
         User user = getUserById(userId);
         // For now, just update the timestamp
         // In a real implementation, you might store preferences in a separate table
@@ -141,6 +171,14 @@ public class UserService {
 
     // Update notification preferences (placeholder implementation)
     public void updateNotificationPreferences(Long userId, Map<String, Object> notificationPrefs) {
+        // Get current authenticated user
+        User currentUser = UserContext.requireCurrentUser();
+
+        // Users can only update their own notification preferences
+        if (!currentUser.getId().equals(userId)) {
+            throw new SecurityException("Access denied: You can only update your own notification preferences");
+        }
+
         User user = getUserById(userId);
         // For now, just update the timestamp
         // In a real implementation, you might store notification preferences in a
@@ -151,6 +189,14 @@ public class UserService {
 
     // Delete user account
     public void deleteUser(Long userId) {
+        // Get current authenticated user
+        User currentUser = UserContext.requireCurrentUser();
+
+        // Users can only delete their own account
+        if (!currentUser.getId().equals(userId)) {
+            throw new SecurityException("Access denied: You can only delete your own account");
+        }
+
         User user = getUserById(userId);
         userRepository.delete(user);
     }

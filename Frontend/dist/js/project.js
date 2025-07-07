@@ -1,8 +1,9 @@
+import { authFetch } from './api.js';
 import realtimeManager from './realtime.js';
 
 // Fetch all projects
 export async function fetchAllProjects() {
-  const res = await fetch('http://localhost:8080/api/projects');
+  const res = await authFetch('http://localhost:8080/api/projects');
   if (!res.ok) throw new Error('Failed to fetch projects');
   return res.json();
 }
@@ -10,14 +11,14 @@ export async function fetchAllProjects() {
 // Fetch projects for a specific user (update endpoint as needed)
 export async function fetchProjectsByUser(userId) {
   // Placeholder endpoint, update as needed
-  const res = await fetch(`http://localhost:8080/api/projects?userId=${userId}`);
+  const res = await authFetch(`http://localhost:8080/api/projects?userId=${userId}`);
   if (!res.ok) throw new Error('Failed to fetch user projects');
   return res.json();
 }
 
 // Create a new project
 export async function createProject(projectData) {
-  const response = await fetch('http://localhost:8080/api/projects/create', {
+  const response = await authFetch('http://localhost:8080/api/projects/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(projectData)
@@ -33,14 +34,14 @@ export async function createProject(projectData) {
 
 // Get a project by ID
 export async function getProjectById(projectId) {
-  const response = await fetch(`http://localhost:8080/api/projects/${projectId}`);
+  const response = await authFetch(`http://localhost:8080/api/projects/${projectId}`);
   if (!response.ok) throw new Error('Failed to fetch project');
   return response.json();
 }
 
 // Update a project
 export async function updateProject(projectId, projectData) {
-  const response = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+  const response = await authFetch(`http://localhost:8080/api/projects/${projectId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(projectData)
@@ -56,7 +57,7 @@ export async function updateProject(projectId, projectData) {
 
 // Delete a project
 export async function deleteProject(projectId) {
-  const response = await fetch(`http://localhost:8080/api/projects/${projectId}`, {
+  const response = await authFetch(`http://localhost:8080/api/projects/${projectId}`, {
     method: 'DELETE'
   });
   if (!response.ok) throw new Error('Failed to delete project');
@@ -69,14 +70,14 @@ export async function deleteProject(projectId) {
 
 // Search projects by name
 export async function searchProjectsByName(name) {
-  const response = await fetch(`http://localhost:8080/api/projects/search?name=${encodeURIComponent(name)}`);
+  const response = await authFetch(`http://localhost:8080/api/projects/search?name=${encodeURIComponent(name)}`);
   if (!response.ok) throw new Error('Failed to search projects');
   return response.json();
 }
 
 // Fetch all users for manager dropdown
 async function fetchAllUsers() {
-  const res = await fetch('http://localhost:8080/api/auth/all');
+  const res = await authFetch('http://localhost:8080/api/auth/all');
   if (!res.ok) throw new Error('Failed to fetch users');
   return res.json();
 }

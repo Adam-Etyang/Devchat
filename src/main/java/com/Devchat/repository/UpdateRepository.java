@@ -26,4 +26,22 @@ public interface UpdateRepository extends JpaRepository<Update, Long> {
      * Using Spring Data JPA method naming instead of JPQL with LIMIT
      */
     List<Update> findTop10ByOrderByCreatedAtDesc();
+
+    /**
+     * Find all updates created after a specific timestamp for a specific user
+     */
+    @Query("SELECT u FROM Update u WHERE u.createdAt > :since AND u.userId = :userId ORDER BY u.createdAt DESC")
+    List<Update> findUpdatesSinceForUser(@Param("since") LocalDateTime since, @Param("userId") Long userId);
+
+    /**
+     * Find updates of a specific type created after a timestamp for a specific user
+     */
+    @Query("SELECT u FROM Update u WHERE u.type = :type AND u.createdAt > :since AND u.userId = :userId ORDER BY u.createdAt DESC")
+    List<Update> findUpdatesByTypeSinceForUser(@Param("type") String type, @Param("since") LocalDateTime since,
+            @Param("userId") Long userId);
+
+    /**
+     * Find the most recent updates for a specific user (for debugging/testing)
+     */
+    List<Update> findTop10ByUserIdOrderByCreatedAtDesc(Long userId);
 }

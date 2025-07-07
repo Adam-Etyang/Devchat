@@ -17,17 +17,27 @@ public interface UpdateService {
     void recordUpdate(String type, String action, Long entityId, String entityName, String additionalData);
 
     /**
-     * Get all updates since a specific timestamp
+     * Record a new update with user ID
+     */
+    void recordUpdate(String type, String action, Long entityId, String entityName, Long userId);
+
+    /**
+     * Record a new update with additional data and user ID
+     */
+    void recordUpdate(String type, String action, Long entityId, String entityName, String additionalData, Long userId);
+
+    /**
+     * Get all updates since a specific timestamp for the current user
      */
     List<Map<String, Object>> getUpdatesSince(LocalDateTime since);
 
     /**
-     * Get updates of a specific type since a timestamp
+     * Get updates of a specific type since a timestamp for the current user
      */
     List<Map<String, Object>> getUpdatesByTypeSince(String type, LocalDateTime since);
 
     /**
-     * Get recent updates (for debugging/testing)
+     * Get recent updates for the current user (for debugging/testing)
      */
     List<Map<String, Object>> getRecentUpdates();
 }

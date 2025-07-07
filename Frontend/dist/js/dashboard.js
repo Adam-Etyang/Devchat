@@ -1,6 +1,7 @@
 import realtimeManager from './realtime.js';
 import { fetchAllProjects, createProject } from './project.js';
 import { fetchAllIssues } from './issue.js';
+import { authFetch } from './api.js';
 
 // Mock: get current user info (replace with real API call when available)
 async function fetchCurrentUser() {
@@ -199,7 +200,7 @@ async function loadRecentIssues() {
 // Load and display recent activity
 async function loadRecentActivity() {
   try {
-    const response = await fetch('http://localhost:8080/api/updates/recent');
+    const response = await authFetch('http://localhost:8080/api/updates/recent');
     
     if (!response.ok) {
       console.warn('Recent activity endpoint returned status:', response.status);

@@ -1,3 +1,5 @@
+import { authFetch } from './api.js';
+
 let stompClient = null;
 let currentUsername = 'DemoUser';
 let messageCount = { sent: 0, received: 0 };

@@ -23,14 +23,26 @@ public class UserController {
         try {
             System.out.println(registerdto);
             User createdUser = userService.registerUser(registerdto);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("User registered successfully: " + createdUser.getUsername());
+
+            // Create response with user data
+            AuthresponseDTO response = new AuthresponseDTO();
+            response.setUserProfile(new UserprofileDTO());
+            response.getUserProfile().setId(createdUser.getId());
+            response.getUserProfile().setUsername(createdUser.getUsername());
+            response.getUserProfile().setEmail(createdUser.getEmail());
+            response.getUserProfile().setFullName(createdUser.getFullName());
+            response.getUserProfile().setPhone(createdUser.getPhone());
+            response.getUserProfile().setBio(createdUser.getBio());
+            response.getUserProfile().setLocation(createdUser.getLocation());
+            response.getUserProfile().setCreatedAt(createdUser.getCreatedAt());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error: " + ex.getMessage());
+                    .body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred: " + ex.getMessage());
+                    .body(Map.of("error", "An unexpected error occurred: " + ex.getMessage()));
         }
     }
 
@@ -54,10 +66,10 @@ public class UserController {
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Error: " + ex.getMessage());
+                    .body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred: " + ex.getMessage());
+                    .body(Map.of("error", "An unexpected error occurred: " + ex.getMessage()));
         }
     }
 

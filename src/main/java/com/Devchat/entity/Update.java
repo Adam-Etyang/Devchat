@@ -32,6 +32,9 @@ public class Update {
     @Column
     private String additionalData; // JSON string with additional data
 
+    @Column(nullable = false)
+    private Long userId; // ID of the user who owns this update
+
     // Default constructor
     public Update() {
         this.createdAt = LocalDateTime.now();
@@ -44,6 +47,16 @@ public class Update {
         this.action = action;
         this.entityId = entityId;
         this.entityName = entityName;
+    }
+
+    // Constructor with user ID
+    public Update(String type, String action, Long entityId, String entityName, Long userId) {
+        this();
+        this.type = type;
+        this.action = action;
+        this.entityId = entityId;
+        this.entityName = entityName;
+        this.userId = userId;
     }
 
     // Getters and Setters
@@ -101,5 +114,13 @@ public class Update {
 
     public void setAdditionalData(String additionalData) {
         this.additionalData = additionalData;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

@@ -1,16 +1,17 @@
 import realtimeManager from './realtime.js';
 import { fetchAllProjects } from './project.js';
+import { authFetch } from './api.js';
 
 // Fetch all issues
 export async function fetchAllIssues() {
-  const res = await fetch('http://localhost:8080/api/issues');
+  const res = await authFetch('http://localhost:8080/api/issues');
   if (!res.ok) throw new Error('Failed to fetch issues');
   return res.json();
 }
 
 // Fetch issues for a specific project
 export async function fetchIssuesByProject(projectId) {
-  const res = await fetch(`http://localhost:8080/api/issues/project/${projectId}`);
+  const res = await authFetch(`http://localhost:8080/api/issues/project/${projectId}`);
   if (!res.ok) throw new Error('Failed to fetch project issues');
   return res.json();
 }
@@ -25,7 +26,7 @@ export async function createIssue(issueData) {
     issueData.reporterId = parseInt(userId, 10);
   }
 
-  const response = await fetch('http://localhost:8080/api/issues', {
+  const response = await authFetch('http://localhost:8080/api/issues', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(issueData)
@@ -41,7 +42,7 @@ export async function createIssue(issueData) {
 
 // Update an issue
 export async function updateIssue(issueId, issueData) {
-  const response = await fetch(`http://localhost:8080/api/issues/${issueId}`, {
+  const response = await authFetch(`http://localhost:8080/api/issues/${issueId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(issueData)
@@ -57,7 +58,7 @@ export async function updateIssue(issueId, issueData) {
 
 // Delete an issue
 export async function deleteIssue(issueId) {
-  const response = await fetch(`http://localhost:8080/api/issues/${issueId}`, {
+  const response = await authFetch(`http://localhost:8080/api/issues/${issueId}`, {
     method: 'DELETE'
   });
   if (!response.ok) throw new Error('Failed to delete issue');
@@ -68,7 +69,7 @@ export async function deleteIssue(issueId) {
 
 // Fetch all users for assignee dropdown
 async function fetchAllUsers() {
-  const res = await fetch('http://localhost:8080/api/auth/all');
+  const res = await authFetch('http://localhost:8080/api/auth/all');
   if (!res.ok) throw new Error('Failed to fetch users');
   return res.json();
 }

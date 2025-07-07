@@ -15,11 +15,13 @@ public class Message {
      */
     private Long id;
 
-    @Column(nullable = false) // This field cannot be null in the database
-    private String sender;
+    @ManyToOne
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
-    @Column(nullable = false)
-    private String receiver;
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
 
     @Column(nullable = false, length = 1000) // length = 1000: Limits content to 1000 characters (prevents huge
                                              // messages)
@@ -41,7 +43,7 @@ public class Message {
     }
 
     // Constructor with all fields except id (for creating new messages)
-    public Message(String sender, String receiver, String content) {
+    public Message(User sender, User receiver, String content) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
@@ -51,7 +53,7 @@ public class Message {
     }
 
     // Constructor with all fields including id (for database retrieval)
-    public Message(Long id, String sender, String receiver, String content, LocalDateTime timestamp, boolean isRead,
+    public Message(Long id, User sender, User receiver, String content, LocalDateTime timestamp, boolean isRead,
             MessageType type) {
         this.id = id;
         this.sender = sender;
@@ -67,11 +69,11 @@ public class Message {
         return id;
     }
 
-    public String getSender() {
+    public User getSender() {
         return sender;
     }
 
-    public String getReceiver() {
+    public User getReceiver() {
         return receiver;
     }
 
@@ -93,11 +95,11 @@ public class Message {
         this.id = id;
     }
 
-    public void setSender(String sender) {
+    public void setSender(User sender) {
         this.sender = sender;
     }
 
-    public void setReceiver(String receiver) {
+    public void setReceiver(User receiver) {
         this.receiver = receiver;
     }
 
@@ -139,8 +141,8 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "id=" + id +
-                ", sender='" + sender + '\'' +
-                ", receiver='" + receiver + '\'' +
+                ", sender='" + (sender != null ? sender.getUsername() : "null") + '\'' +
+                ", receiver='" + (receiver != null ? receiver.getUsername() : "null") + '\'' +
                 ", content='" + content + '\'' +
                 ", timestamp=" + timestamp +
                 ", isRead=" + isRead +

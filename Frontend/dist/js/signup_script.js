@@ -1,10 +1,5 @@
-// Procedural Signup JavaScript Code
-// This code implements a multi-step signup form with real-time validation, password strength indicator, and procedural navigation.
-//the class ProceduralSignup handles the signup process, including form validation, step navigation, and account creation.
-
-class ProceduralSignup {
-    // This class handles the procedural signup process
-    // It includes methods for initializing the form, handling step navigation, validating inputs, and creating an account.
+// Modern Signup JavaScript
+class ModernSignup {
     constructor() {
         this.currentStep = 1;
         this.totalSteps = 4;
@@ -12,18 +7,16 @@ class ProceduralSignup {
         
         this.init();
     }
-// Initializes the signup process
-// Binds event listeners for navigation buttons and input validation
+
     init() {
         this.bindEvents();
         this.updateProgress();
+        this.setupPasswordToggles();
     }
-// Binds event listeners for the next and previous buttons, input validation, and keyboard navigation
-// It also sets up real-time validation for the input fields and auto-focuses the current input field.
+
     bindEvents() {
         const nextBtn = document.getElementById('nextBtn');
         const prevBtn = document.getElementById('prevBtn');
-        const form = document.getElementById('signupForm');
 
         nextBtn.addEventListener('click', () => this.handleNext());
         prevBtn.addEventListener('click', () => this.handlePrevious());
@@ -39,23 +32,44 @@ class ProceduralSignup {
         });
 
         // Real-time validation
-        document.getElementById('orgName').addEventListener('input', () => this.validateStep(1));
+        document.getElementById('fullName').addEventListener('input', () => this.validateStep(1));
         document.getElementById('email').addEventListener('input', () => this.validateStep(2));
         document.getElementById('password').addEventListener('input', () => {
             this.validateStep(3);
             this.updatePasswordStrength();
         });
-
+        document.getElementById('confirmPassword').addEventListener('input', () => this.validateStep(3));
+        document.getElementById('agreeTerms').addEventListener('change', () => this.validateStep(4));
 
         // Auto-focus current input
         this.focusCurrentInput();
     }
 
-   // Handles the next button click event
-    // Validates the current step, saves the data, and navigates to the next step or creates the account if on the last step
+    setupPasswordToggles() {
+        const passwordToggle = document.getElementById('passwordToggle');
+        const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+        passwordToggle.addEventListener('click', () => {
+            this.togglePasswordVisibility(passwordInput, passwordToggle);
+        });
+
+        confirmPasswordToggle.addEventListener('click', () => {
+            this.togglePasswordVisibility(confirmPasswordInput, confirmPasswordToggle);
+        });
+    }
+
+    togglePasswordVisibility(input, toggle) {
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        const icon = toggle.querySelector('i');
+        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    }
 
     handleNext() {
-        console.log('Current step:', this.currentStep); // Add debug logging
+        console.log('Current step:', this.currentStep);
     
         if (this.validateStep(this.currentStep)) {
             this.saveStepData();
@@ -68,7 +82,7 @@ class ProceduralSignup {
                 
                 // Update button text for final step
                 if (this.currentStep === this.totalSteps) {
-                    document.getElementById('nextBtn').textContent = 'Create Account';
+                    document.getElementById('nextBtn').querySelector('.btn-text').textContent = 'Create Account';
                     this.showReview();
                 }
             } else if (this.currentStep === this.totalSteps) {
@@ -76,10 +90,6 @@ class ProceduralSignup {
             }
         }
     }
-// Handles the previous button click event
-    // Navigates back to the previous step, updates the progress, and focuses the current input field
-    // It also updates the button text if necessary.
-
 
     handlePrevious() {
         if (this.currentStep > 1) {
@@ -89,17 +99,17 @@ class ProceduralSignup {
             this.focusCurrentInput();
             
             if (this.currentStep < 4) {
-                document.getElementById('nextBtn').textContent = 'Next';
+                document.getElementById('nextBtn').querySelector('.btn-text').textContent = 'Next';
             }
         }
     }
 
     validateStep(step) {
         const validators = {
-            1: () => this.validateOrgName(),
+            1: () => this.validateFullName(),
             2: () => this.validateEmail(),
-            3: () => this.validatePassword(),
-            4: () => true // Review step should always return true
+            3: () => this.validatePassword() && this.validateConfirmPassword(),
+            4: () => this.validateTerms()
         };
 
         if (!validators[step]) {
@@ -108,40 +118,39 @@ class ProceduralSignup {
         }
 
         const isValid = validators[step]();
-        
-        // Debug logging
         console.log(`Step ${step} validation result:`, isValid);
         
         return isValid;
     }
-// Validates the organization name input
-// Checks if the name is at least 2 characters long and contains only valid characters
-    // Displays error messages if validation fails and clears them if validation passes
-    validateOrgName() {
-        const input = document.getElementById('orgName');
-        const error = document.getElementById('orgNameError');
+
+    validateFullName() {
+        const input = document.getElementById('fullName');
+        const error = document.getElementById('fullNameError');
         const value = input.value.trim();
 
         if (value.length < 2) {
-            this.showError(input, error, 'Organization name must be at least 2 characters long');
+            this.showError(input, error, 'Full name must be at least 2 characters long');
             return false;
         }
 
-        if (!/^[a-zA-Z0-9\s'-]+$/.test(value)) {
-            this.showError(input, error, 'Organization name can only contain letters, numbers, spaces, hyphens, and apostrophes');
+        if (!/^[a-zA-Z\s'-]+$/.test(value)) {
+            this.showError(input, error, 'Full name can only contain letters, spaces, hyphens, and apostrophes');
             return false;
         }
 
         this.clearError(input, error);
         return true;
     }
-// Validates the email input
-// Checks if the email format is valid using a regular expression
-    // Displays error messages if validation fails and clears them if validation passes
+
     validateEmail() {
         const input = document.getElementById('email');
         const error = document.getElementById('emailError');
         const value = input.value.trim();
+
+        if (!value) {
+            this.showError(input, error, 'Email is required');
+            return false;
+        }
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
             this.showError(input, error, 'Please enter a valid email address');
@@ -151,13 +160,16 @@ class ProceduralSignup {
         this.clearError(input, error);
         return true;
     }
-// Validates the password input
-// Checks if the password is at least 8 characters long and contains at least one uppercase letter, one lowercase letter, and one number
-    // Displays error messages if validation fails and clears them if validation passes
+
     validatePassword() {
         const input = document.getElementById('password');
         const error = document.getElementById('passwordError');
         const value = input.value;
+
+        if (!value) {
+            this.showError(input, error, 'Password is required');
+            return false;
+        }
 
         if (value.length < 8) {
             this.showError(input, error, 'Password must be at least 8 characters long');
@@ -172,24 +184,51 @@ class ProceduralSignup {
         this.clearError(input, error);
         return true;
     }
+
+    validateConfirmPassword() {
+        const input = document.getElementById('confirmPassword');
+        const error = document.getElementById('confirmPasswordError');
+        const password = document.getElementById('password').value;
+        const value = input.value;
+
+        if (!value) {
+            this.showError(input, error, 'Please confirm your password');
+            return false;
+        }
+
+        if (value !== password) {
+            this.showError(input, error, 'Passwords do not match');
+            return false;
+        }
+
+        this.clearError(input, error);
+        return true;
+    }
+
+    validateTerms() {
+        const checkbox = document.getElementById('agreeTerms');
+        const error = document.getElementById('termsError');
+
+        if (!checkbox.checked) {
+            this.showError(checkbox, error, 'You must agree to the Terms of Service and Privacy Policy');
+            return false;
+        }
+
+        this.clearError(checkbox, error);
+        return true;
+    }
     
-// Displays an error message for the input field
-// Adds an error class to the input and shows the error message in the specified error element
-    // Clears the error message if validation passes
-showError(input, errorElement, message) {
+    showError(input, errorElement, message) {
         input.classList.add('error');
         errorElement.textContent = message;
         errorElement.classList.add('show');
     }
-// Clears the error message for the input field
-// Removes the error class from the input and hides the error message in the specified error element
-    // This method is called when the input passes validation
+
     clearError(input, errorElement) {
         input.classList.remove('error');
         errorElement.classList.remove('show');
     }
-// Updates the password strength indicator based on the current password input
-// It calculates the strength based on length, character variety, and displays the strength level with a color-coded bar
+
     updatePasswordStrength() {
         const password = document.getElementById('password').value;
         const strengthContainer = document.getElementById('passwordStrength');
@@ -197,15 +236,15 @@ showError(input, errorElement, message) {
         const strengthText = document.getElementById('strengthText');
 
         if (password.length === 0) {
-            strengthContainer.style.display = 'none';
+            strengthContainer.classList.remove('show');
             return;
         }
 
-        strengthContainer.style.display = 'block';
+        strengthContainer.classList.add('show');
 
         let strength = 0;
         let strengthLabel = 'Very Weak';
-        let strengthColor = '#dc2626';
+        let strengthColor = '#ef4444';
 
         if (password.length >= 8) strength++;
         if (/[a-z]/.test(password)) strength++;
@@ -217,11 +256,11 @@ showError(input, errorElement, message) {
             case 0:
             case 1:
                 strengthLabel = 'Very Weak';
-                strengthColor = '#dc2626';
+                strengthColor = '#ef4444';
                 break;
             case 2:
                 strengthLabel = 'Weak';
-                strengthColor = '#ea580c';
+                strengthColor = '#f97316';
                 break;
             case 3:
                 strengthLabel = 'Fair';
@@ -245,7 +284,7 @@ showError(input, errorElement, message) {
 
     saveStepData() {
         const stepData = {
-            1: () => this.formData.orgName = document.getElementById('orgName').value.trim(),
+            1: () => this.formData.fullName = document.getElementById('fullName').value.trim(),
             2: () => this.formData.email = document.getElementById('email').value.trim(),
             3: () => this.formData.password = document.getElementById('password').value,
         };
@@ -262,7 +301,7 @@ showError(input, errorElement, message) {
         const prevBtn = document.getElementById('prevBtn');
         const stepIndicator = document.getElementById('stepIndicator');
 
-        prevBtn.style.display = step > 1 ? 'block' : 'none';
+        prevBtn.style.display = step > 1 ? 'flex' : 'none';
         
         if (step <= this.totalSteps) {
             stepIndicator.textContent = `Step ${step} of ${this.totalSteps}`;
@@ -273,7 +312,7 @@ showError(input, errorElement, message) {
 
     updateProgress() {
         const progress = (this.currentStep / this.totalSteps) * 100;
-        document.querySelector('.progress-fill').style.width = `${progress}%`;
+        document.getElementById('progressFill').style.width = `${progress}%`;
     }
 
     focusCurrentInput() {
@@ -287,32 +326,31 @@ showError(input, errorElement, message) {
     }
 
     showReview() {
-        // Add console.log to verify this is being called
-    console.log('Showing review step');
+        console.log('Showing review step');
     
-    const reviewOrgName = document.getElementById('reviewOrgName');
-    const reviewEmail = document.getElementById('reviewEmail');
-    
-    if (reviewOrgName && reviewEmail) {
-        reviewOrgName.textContent = this.formData.orgName || '';
-        reviewEmail.textContent = this.formData.email || '';
-    } else {
-        console.error('Review elements not found');
-    }
+        const reviewFullName = document.getElementById('reviewFullName');
+        const reviewEmail = document.getElementById('reviewEmail');
+        
+        if (reviewFullName && reviewEmail) {
+            reviewFullName.textContent = this.formData.fullName || '';
+            reviewEmail.textContent = this.formData.email || '';
+        } else {
+            console.error('Review elements not found');
+        }
     }
 
     async createAccount() {
         const nextBtn = document.getElementById('nextBtn');
-        const originalText = nextBtn.textContent;
+        const originalText = nextBtn.querySelector('.btn-text').textContent;
         
-        nextBtn.textContent = 'Creating Account...';
+        nextBtn.classList.add('loading');
         nextBtn.disabled = true;
 
         // Prepare the data according to your RegisterDTO structure
         const userData = {
-            username: this.formData.orgName.toLowerCase().replace(/\s+/g, '_'), // Convert org name to username format
+            username: this.formData.fullName.toLowerCase().replace(/\s+/g, '_'), // Convert full name to username format
             email: this.formData.email,
-            fullName: this.formData.orgName,
+            fullName: this.formData.fullName,
             password: this.formData.password,
             confirmPassword: this.formData.password,
             profilePicture: "", // Optional
@@ -332,32 +370,141 @@ showError(input, errorElement, message) {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Registration failed');
+                throw new Error(data.error || 'Registration failed');
             }
 
             // Show success step
             this.currentStep = 5;
             this.showStep(5);
-            document.getElementById('successOrgName').textContent = this.formData.orgName;
+            document.getElementById('successFullName').textContent = this.formData.fullName;
             document.querySelector('.button-group').style.display = 'none';
-            document.querySelector('.progress-bar').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            // Show success toast
+            this.showToast('Account created successfully! Welcome to DevChat!', 'success');
             
             // Redirect after success
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = 'Login.html';
             }, 3000);
 
         } catch (error) {
             // Handle errors
-            nextBtn.textContent = originalText;
+            nextBtn.classList.remove('loading');
             nextBtn.disabled = false;
-            alert('Registration failed: ' + error.message);
+            this.showToast('Registration failed: ' + error.message, 'error');
+        }
+    }
+
+    showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas ${this.getToastIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast-close">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Add toast styles if not already present
+        if (!document.querySelector('#toast-styles')) {
+            const style = document.createElement('style');
+            style.id = 'toast-styles';
+            style.textContent = `
+                .toast {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: white;
+                    border-radius: 12px;
+                    padding: 16px 20px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                    border-left: 4px solid #667eea;
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    max-width: 400px;
+                    animation: slideIn 0.3s ease;
+                }
+                
+                .toast-error {
+                    border-left-color: #ef4444;
+                }
+                
+                .toast-success {
+                    border-left-color: #10b981;
+                }
+                
+                .toast-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    flex: 1;
+                }
+                
+                .toast-close {
+                    background: none;
+                    border: none;
+                    color: #9ca3af;
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    transition: color 0.3s ease;
+                }
+                
+                .toast-close:hover {
+                    color: #6b7280;
+                }
+                
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(toast);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 5000);
+
+        // Close button functionality
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            toast.remove();
+        });
+    }
+
+    getToastIcon(type) {
+        switch (type) {
+            case 'error': return 'fa-exclamation-circle';
+            case 'success': return 'fa-check-circle';
+            default: return 'fa-info-circle';
         }
     }
 }
 
-// Initialize the procedural signup
+// Initialize the modern signup
 document.addEventListener('DOMContentLoaded', () => {
-    new ProceduralSignup();
-    
+    new ModernSignup();
 });
