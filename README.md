@@ -61,6 +61,58 @@ A modern, real-time collaborative development platform built with Spring Boot an
 - **PostgreSQL**: Relational database
 - **Maven**: Build automation and dependency management
 
+## Testing
+
+### Unit & Integration Tests
+
+Devchat includes a comprehensive suite of unit and integration tests to ensure code quality and reliability.
+
+- **Test Framework:** JUnit 5 (Jupiter)
+- **Test Runner:** Maven Surefire Plugin
+- **Mocking:** Mockito, Spring Boot Test
+- **Database:** H2 in-memory for integration tests
+
+### Test Coverage
+
+- **Entities:** JPA entity mapping and constraints
+- **Repositories:** Data access and query methods
+- **Services:** Business logic, authentication, and authorization
+- **Controllers:** REST API endpoints, request/response validation, security
+- **Mappers:** DTO/entity conversion
+- **Exception Handling:** Custom exception logic
+
+### Running Tests
+
+To run all tests:
+
+```sh
+mvn test
+```
+
+Test results will be shown in the console and detailed reports are available in `target/surefire-reports/`.
+
+### Writing New Tests
+
+- Place new test classes in `src/test/java/com/Devchat/`
+- Use `@SpringBootTest` for integration tests, `@WebMvcTest` for controller tests, and `@DataJpaTest` for repository tests
+- Use `@MockBean` to mock dependencies as needed
+- For controller tests, add the `X-User-ID` header to simulate authentication:
+  ```java
+  mockMvc.perform(post("/api/projects/create")
+      .header("X-User-ID", "1")
+      ...)
+  ```
+- Mock `UserService.getUserById` to return a test user for the given ID
+
+See the provided test templates for examples:
+
+- `ControllerTemplateTest.java`
+- `ServiceTemplateTest.java`
+- `RepositoryTemplateTest.java`
+- `MapperTemplateTest.java`
+- `EntityTemplateTest.java`
+- `ExceptionTemplateTest.java`
+
 ## 📁 Project Structure
 
 ```
@@ -544,5 +596,3 @@ public class UpdateServiceImpl implements UpdateService {
     }
 }
 ```
-
-
