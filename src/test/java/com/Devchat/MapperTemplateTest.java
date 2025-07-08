@@ -11,11 +11,23 @@ public class MapperTemplateTest {
 
     @Test
     void testToDTO() {
+        // Arrange
         Project project = new Project();
-        project.setName("Test");
-        // If your mapper uses instance methods, instantiate it:
-        ProjectMapper mapper = new ProjectMapper(); // Or use dependency injection if needed
-        ProjectDTO dto = mapper.toDTO(project); // Change to your mapping method
-        assertEquals("Test", dto.getName());
+        project.setId(1L);
+        project.setName("Test Project");
+        project.setDescription("Test Description");
+        project.setStatus("ACTIVE");
+
+        ProjectMapper mapper = new ProjectMapper();
+
+        // Act
+        ProjectDTO dto = mapper.toDTO(project);
+
+        // Assert
+        assertNotNull(dto);
+        assertEquals(1L, dto.getId());
+        assertEquals("Test Project", dto.getName());
+        assertEquals("Test Description", dto.getDescription());
+        assertEquals("ACTIVE", dto.getStatus());
     }
 }

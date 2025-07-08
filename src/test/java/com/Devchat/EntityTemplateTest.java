@@ -1,6 +1,6 @@
 package com.Devchat;
 
-import com.Devchat.entity.User; // Change to your entity
+import com.Devchat.entity.*; // Change to your entity
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
