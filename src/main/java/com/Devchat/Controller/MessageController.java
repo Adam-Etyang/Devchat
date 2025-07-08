@@ -3,7 +3,9 @@ package com.Devchat.Controller;
 import com.Devchat.DTO.CreateMessageRequest;
 import com.Devchat.DTO.MessageDTO;
 import com.Devchat.Service.MessageService;
+import com.Devchat.Service.UserService;
 import com.Devchat.entity.Message;
+import com.Devchat.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -27,6 +29,9 @@ public class MessageController {
   private MessageService messageService;
 
   @Autowired
+  private UserService userService;
+
+  @Autowired
   private SimpMessagingTemplate messagingTemplate;
 
   /**
@@ -35,16 +40,15 @@ public class MessageController {
    */
   @MessageMapping("/chat.sendMessage")
   @SendTo("/topic/public")
-  public Message sendMessage(@Payload Message chatMessage) {
+  public MessageDTO sendMessage(@Payload MessageDTO chatMessage) {
     try {
       // Save message to database if it's a CHAT type message
       if (Message.MessageType.CHAT.equals(chatMessage.getType())) {
-        // Save to database using sender and receiver usernames
-        MessageDTO savedMessage = messageService.sendMessage(
-            new CreateMessageRequest(
-                chatMessage.getSender().getUsername(),
-                chatMessage.getReceiver().getUsername(),
-                chatMessage.getContent()));
+        // Save to database using the WebSocket method that doesn't rely on UserContext
+        MessageDTO savedMessage = messageService.sendWebSocketMessage(
+            chatMessage.getSender(),
+            chatMessage.getReceiver(),
+            chatMessage.getContent());
 
         // Update the message with database ID and timestamp
         chatMessage.setId(savedMessage.getId());
@@ -65,7 +69,7 @@ public class MessageController {
    */
   @MessageMapping("/chat.addUser")
   @SendTo("/topic/public")
-  public Message addUser(@Payload Message chatMessage, SimpMessageHeaderAccessor headerAccessor) {
+  public MessageDTO addUser(@Payload MessageDTO chatMessage, SimpMessageHeaderAccessor headerAccessor) {
     // Add username to web socket session
     headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
 
@@ -78,15 +82,14 @@ public class MessageController {
    * Sends message only to specific user
    */
   @MessageMapping("/chat.privateMessage")
-  public void sendPrivateMessage(@Payload Message chatMessage) {
+  public void sendPrivateMessage(@Payload MessageDTO chatMessage) {
     try {
       // Save private message to database
       if (Message.MessageType.CHAT.equals(chatMessage.getType()) && chatMessage.getReceiver() != null) {
-        MessageDTO savedMessage = messageService.sendMessage(
-            new CreateMessageRequest(
-                chatMessage.getSender().getUsername(),
-                chatMessage.getReceiver().getUsername(),
-                chatMessage.getContent()));
+        MessageDTO savedMessage = messageService.sendWebSocketMessage(
+            chatMessage.getSender(),
+            chatMessage.getReceiver(),
+            chatMessage.getContent());
 
         chatMessage.setId(savedMessage.getId());
         chatMessage.setTimestamp(savedMessage.getTimestamp());
@@ -94,13 +97,13 @@ public class MessageController {
 
       // Send to specific user
       messagingTemplate.convertAndSendToUser(
-          chatMessage.getReceiver().getUsername(),
+          chatMessage.getReceiver(),
           "/topic/private",
           chatMessage);
 
       // Also send back to sender for confirmation
       messagingTemplate.convertAndSendToUser(
-          chatMessage.getSender().getUsername(),
+          chatMessage.getSender(),
           "/topic/private",
           chatMessage);
 
@@ -114,7 +117,7 @@ public class MessageController {
    */
   @MessageMapping("/chat.typing")
   @SendTo("/topic/typing")
-  public Message handleTyping(@Payload Message chatMessage) {
+  public MessageDTO handleTyping(@Payload MessageDTO chatMessage) {
     return chatMessage;
   }
 

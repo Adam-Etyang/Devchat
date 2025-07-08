@@ -41,7 +41,6 @@ A modern, real-time collaborative development platform built with Spring Boot an
 - **Spring Data JPA**: Data access layer with Hibernate
 - **PostgreSQL**: Primary database with Flyway migrations
 - **WebSocket**: Real-time communication with STOMP
-- **JWT**: Stateless authentication tokens
 - **BCrypt**: Password encryption
 - **Lombok**: Reduces boilerplate code
 - **Maven**: Dependency management and build tool

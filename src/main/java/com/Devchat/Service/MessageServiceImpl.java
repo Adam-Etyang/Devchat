@@ -51,6 +51,33 @@ public class MessageServiceImpl implements MessageService {
         return toDTO(saved);
     }
 
+    // Send a new message via WebSocket (with explicit sender username)
+    /*
+     * Creates a new Message entity for WebSocket messages
+     * Uses explicit sender username instead of UserContext
+     * Saves it to the database
+     * Converts the saved entity to a DTO
+     */
+    @Override
+    public MessageDTO sendWebSocketMessage(String senderUsername, String receiverUsername, String content) {
+        // Find the sender user
+        User sender = userRepository.findByUsername(senderUsername)
+                .orElseThrow(() -> new RuntimeException("Sender not found: " + senderUsername));
+
+        // Find the receiver user
+        User receiver = userRepository.findByUsername(receiverUsername)
+                .orElseThrow(() -> new RuntimeException("Receiver not found: " + receiverUsername));
+
+        // Create a new Message entity
+        Message message = new Message(sender, receiver, content);
+
+        // Save the message to the database
+        Message saved = messageRepository.save(message);
+
+        // Convert the saved entity to a DTO and return
+        return toDTO(saved);
+    }
+
     // Get all messages between two users (conversation)
     /*
      * Gets all messages between two users, regardless of direction
@@ -138,6 +165,7 @@ public class MessageServiceImpl implements MessageService {
                 message.getReceiver().getUsername(),
                 message.getContent(),
                 message.getTimestamp(),
-                message.isRead());
+                message.isRead(),
+                message.getType());
     }
 }

@@ -8,6 +8,9 @@ public interface MessageService {
   // Send a new message
   MessageDTO sendMessage(CreateMessageRequest request);
 
+  // Send a new message via WebSocket (with explicit sender username)
+  MessageDTO sendWebSocketMessage(String senderUsername, String receiverUsername, String content);
+
   // Get all messages between two users (conversation)
   List<MessageDTO> getMessagesBetweenUsers(Long user1Id, Long user2Id);
 

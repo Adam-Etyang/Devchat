@@ -2,6 +2,7 @@
 package com.Devchat.DTO;
 
 import java.time.LocalDateTime;
+import com.Devchat.entity.Message.MessageType;
 
 public class MessageDTO {
 
@@ -11,6 +12,7 @@ public class MessageDTO {
   private String content; // The message text
   private LocalDateTime timestamp; // When it was sent
   private boolean isRead; // Whether it's been read
+  private MessageType type; // Type of message (CHAT, JOIN, LEAVE)
 
   // Default constructor (required for JSON deserialization)
   public MessageDTO() {
@@ -23,16 +25,19 @@ public class MessageDTO {
     this.content = content;
     this.timestamp = LocalDateTime.now();
     this.isRead = false;
+    this.type = MessageType.CHAT; // Default to CHAT type
   }
 
   // Constructor for sending complete message data (with all fields)
-  public MessageDTO(Long id, String sender, String receiver, String content, LocalDateTime timestamp, boolean isRead) {
+  public MessageDTO(Long id, String sender, String receiver, String content, LocalDateTime timestamp, boolean isRead,
+      MessageType type) {
     this.id = id;
     this.sender = sender;
     this.receiver = receiver;
     this.content = content;
     this.timestamp = timestamp;
     this.isRead = isRead;
+    this.type = type;
   }
 
   // Getters
@@ -60,6 +65,10 @@ public class MessageDTO {
     return isRead;
   }
 
+  public MessageType getType() {
+    return type;
+  }
+
   // Setters
   public void setId(Long id) {
     this.id = id;
@@ -85,6 +94,10 @@ public class MessageDTO {
     isRead = read;
   }
 
+  public void setType(MessageType type) {
+    this.type = type;
+  }
+
   /*
    * The toString() method is a special method in Java that converts an object
    * into a string representation.
@@ -99,6 +112,7 @@ public class MessageDTO {
         ", content='" + content + '\'' +
         ", timestamp=" + timestamp +
         ", isRead=" + isRead +
+        ", type=" + type +
         '}';
   }
 }

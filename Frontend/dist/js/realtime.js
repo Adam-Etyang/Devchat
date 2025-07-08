@@ -132,9 +132,10 @@ if (typeof window !== 'undefined') {
     realtimeManager.startPolling();
   });
   
-  window.addEventListener('beforeunload', () => {
-    realtimeManager.stopPolling();
-  });
+  // Remove the beforeunload event listener to fix permissions policy violation
+  // window.addEventListener('beforeunload', () => {
+  //   realtimeManager.stopPolling();
+  // });
 }
 
 export default realtimeManager; 
