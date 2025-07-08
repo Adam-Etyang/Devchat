@@ -1,0 +1,15 @@
+-- Drop only the problematic constraint with the long name
+--DO $$
+
+--BEGIN
+--    IF EXISTS (
+--        SELECT
+        --    1
+       -- FROM
+            --INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+        --WHERE
+            --CONSTRAINT_NAME = 'fkf1bosxjjqtl8l5ycq8sjmunlt'
+    --) THEN
+        --ALTER TABLE ISSUES DROP CONSTRAINT FKF1BOSXJJQTL8L5YCQ8SJMUNLT;
+    --END IF;
+--END $$;

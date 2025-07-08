@@ -1,7 +1,4 @@
 -- Add profile fields to app_users table
-ALTER TABLE APP_USERS
-    ADD COLUMN PHONE VARCHAR(
-        20
-    ), ADD COLUMN BIO TEXT, ADD COLUMN LOCATION VARCHAR(
-        100
-    );
+--ALTER TABLE app_users ADD COLUMN phone VARCHAR(20);
+--ALTER TABLE app_users ADD COLUMN bio TEXT;
+--ALTER TABLE app_users ADD COLUMN location VARCHAR(100);
