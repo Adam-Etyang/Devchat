@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Chat | Devchat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.5/sockjs.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            devbg: "#0a0a0a",
+            devpurple: "#cc81ff",
+            devpurplelight: "#e6b3ff"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-black min-h-screen text-white">
+  <!-- Navbar -->
+  <nav class="fixed top-0 left-0 w-full z-50 bg-black/95 backdrop-blur border-b border-[rgba(204,129,255,0.2)] shadow-lg">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <a href="dashboard.html" class="font-bold text-2xl text-devpurple tracking-tight">Devchat</a>
+      <div class="hidden md:flex gap-8">
+        <a href="dashboard.html" class="relative text-devpurple font-medium transition">Dashboard</a>
+        <a href="project/project.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Projects</a>
+        <a href="issue.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Issues</a>
+        <a href="chat.html" class="relative text-devpurple font-medium transition">Team Chat</a>
+        <a href="Notifications.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Notifications</a>
+        <a href="settings.html" class="relative text-gray-300 hover:text-devpurple font-medium transition">Settings</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="flex pt-24 max-w-7xl mx-auto min-h-screen">
+    <!-- Sidebar -->
+    <aside class="hidden md:block w-60 px-4">
+      <nav class="flex flex-col gap-2">
+        <a href="dashboard.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Dashboard</a>
+        <a href="project/project.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">My Projects</a>
+        <a href="issue.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Assigned Issues</a>
+        <a href="chat.html" class="block px-4 py-2 rounded-lg text-devpurple bg-devpurple/10 font-semibold">Team Chat</a>
+        <a href="Notifications.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Notifications</a>
+        <a href="settings.html" class="block px-4 py-2 rounded-lg text-gray-300 hover:bg-devpurple/10 hover:text-devpurple transition">Settings</a>
+      </nav>
+      <div class="mt-8">
+        <div class="font-semibold text-devpurple mb-2">Online Users</div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-devpurple to-devpurplelight flex items-center justify-center text-black font-bold text-lg border-2 border-devpurple relative">
+              A
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full"></span>
+            </div>
+            <span class="text-gray-200">Alex</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-devpurple to-devpurplelight flex items-center justify-center text-black font-bold text-lg border-2 border-devpurple relative">
+              D
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full"></span>
+            </div>
+            <span class="text-gray-200">DemoUser <span class="ml-1 px-2 py-0.5 rounded bg-devpurple text-black text-xs font-bold">Admin</span></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-200 flex items-center justify-center text-black font-bold text-lg border-2 border-yellow-400 relative">
+              S
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full"></span>
+            </div>
+            <span class="text-gray-200">Sara</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Chat Section -->
+    <main class="flex-1 px-4 md:px-8 space-y-8">
+      <section class="bg-[#18181b]/95 border border-devpurple/20 rounded-xl shadow p-6 flex flex-col h-[70vh] max-h-[70vh]">
+        <div class="flex items-center justify-between mb-4">
+          <h1 class="text-2xl md:text-3xl font-bold text-devpurple">Team Chat</h1>
+        </div>
+        <div id="messages" class="flex-1 overflow-y-auto space-y-4 pr-2">
+          <!-- Messages will be dynamically loaded here -->
+        </div>
+        <form class="mt-4 flex gap-3 items-center" onsubmit="sendMessage(); return false;">
+          <label for="imageInput" class="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-black/80 border border-devpurple/20 text-devpurple hover:bg-devpurple/10 transition" title="Share image">🖼️</label>
+          <input type="file" id="imageInput" accept="image/*" class="hidden" />
+          <label for="fileInput" class="cursor-pointer flex items-center justify-center w-10 h-10 rounded-lg bg-black/80 border border-devpurple/20 text-devpurple hover:bg-devpurple/10 transition" title="Share file">📎</label>
+          <input type="file" id="fileInput" class="hidden" />
+          <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 rounded-lg bg-black/80 border border-devpurple/20 px-4 py-2 text-gray-100 focus:outline-none focus:border-devpurple" />
+          <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-lg bg-devpurple text-black font-bold text-xl hover:bg-devpurplelight transition">➡️</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src = "../js/chat.js"></script>
+</body>
+</html>

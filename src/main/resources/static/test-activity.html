@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Recent Activity</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Test Recent Activity</h1>
+    
+    <div class="test-section">
+        <h2>Set User ID</h2>
+        <input type="number" id="userIdInput" placeholder="Enter User ID" value="26">
+        <button onclick="setUserId()">Set User ID</button>
+        <div class="result" id="userIdResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Recent Activity API</h2>
+        <button onclick="testRecentActivity()">Test Recent Activity</button>
+        <div class="result" id="activityResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test authFetch Function</h2>
+        <button onclick="testAuthFetch()">Test authFetch</button>
+        <div class="result" id="authFetchResult"></div>
+    </div>
+
+    <script type="module">
+        // Import the authFetch function
+        import { authFetch, getUserId } from './js/api.js';
+        
+        // Make functions available globally
+        window.setUserId = function() {
+            const userId = document.getElementById('userIdInput').value;
+            localStorage.setItem('userId', userId);
+            document.getElementById('userIdResult').textContent = `User ID set to: ${userId}`;
+        };
+        
+        window.testRecentActivity = async function() {
+            const resultDiv = document.getElementById('activityResult');
+            resultDiv.textContent = 'Testing...';
+            
+            try {
+                const userId = getUserId();
+                const response = await fetch(`http://localhost:8080/api/updates/recent`, {
+                    headers: {
+                        'X-User-ID': userId,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.textContent = `Success! Found ${data.length} updates: ${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        };
+        
+        window.testAuthFetch = async function() {
+            const resultDiv = document.getElementById('authFetchResult');
+            resultDiv.textContent = 'Testing authFetch...';
+            
+            try {
+                const response = await authFetch('http://localhost:8080/api/updates/recent');
+                const data = await response.json();
+                resultDiv.textContent = `authFetch Success! Found ${data.length} updates: ${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.textContent = `authFetch Error: ${error.message}`;
+            }
+        };
+    </script>
+</body>
+</html> 
